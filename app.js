@@ -262,6 +262,24 @@ $('calendarNext').addEventListener('click',()=>{const [y,m]=calendarMonth.split(
 document.addEventListener('click',e=>{const day=e.target.closest('[data-calendar-day]');if(day){calendarSelected=day.dataset.calendarDay;renderCalendar()}});
 function dueDateForMonth(day,month){const [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate();return `${y}-${String(m).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`}
 let calendarMonth=today().slice(0,7),calendarSelected=today();
+const calendarFilterOptions=[
+ {kind:'recurring',label:'Contas fixas'},{kind:'income',label:'Receitas'},{kind:'expense',label:'Despesas'},
+ {kind:'invoice',label:'Faturas'},{kind:'commitment',label:'Compromissos'},{kind:'debt',label:'Dívidas'},
+ {kind:'debtPayment',label:'Pagamentos de dívidas'},{kind:'goal',label:'Prazos de metas'},
+ {kind:'goalDeposit',label:'Depósitos em metas'},{kind:'transfer',label:'Transferências'}
+];
+const calendarFilters=new Set(calendarFilterOptions.map(x=>x.kind));
+const filteredCalendarEvents=date=>calendarEventsForDate(date).filter(event=>calendarFilters.has(event.kind));
+function renderCalendarFilters(){
+ const host=$('calendarFilters');if(!host)return;
+ host.innerHTML='<div class="calendar-filter-head"><b>Filtrar eventos</b><button type="button" class="calendar-filter-reset" data-calendar-filter-reset>Todos</button></div><div class="calendar-filter-chips">'+calendarFilterOptions.map(item=>'<button type="button" class="calendar-filter-chip '+(calendarFilters.has(item.kind)?'active':'')+'" data-calendar-filter="'+item.kind+'" aria-pressed="'+calendarFilters.has(item.kind)+'">'+item.label+'</button>').join('')+'</div>';
+}
+document.addEventListener('click',e=>{
+ const chip=e.target.closest('[data-calendar-filter]');
+ if(chip){const kind=chip.dataset.calendarFilter;if(calendarFilters.has(kind))calendarFilters.delete(kind);else calendarFilters.add(kind);renderCalendar();return}
+ if(e.target.closest('[data-calendar-filter-reset]')){calendarFilterOptions.forEach(x=>calendarFilters.add(x.kind));renderCalendar()}
+});
+
 function paidInMonth(b,month){return data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===month)}
 function calendarEventsForDate(date){
  const month=date.slice(0,7),events=[];
@@ -293,12 +311,12 @@ function calendarEventsForDate(date){
 function renderCalendar(){
  const [year,month]=calendarMonth.split('-').map(Number),first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();$('calendarTitle').textContent=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
  const offset=(first.getDay()+6)%7,cells=[];['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(d=>cells.push(`<div class="calendar-weekday">${d}</div>`));for(let i=0;i<offset;i++)cells.push('<div></div>');
- for(let day=1;day<=days;day++){const date=dueDateForMonth(day,calendarMonth),events=calendarEventsForDate(date),allPaid=events.length>0&&events.every(x=>x.status==='paid'||x.status==='done'),cls=[date===calendarSelected?'selected':'',events.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}" aria-label="${day}, ${events.length} evento(s)">${day}${events.length?'<i class="calendar-dot"></i>':''}</button>`)}
- $('calendarGrid').innerHTML=cells.join('');renderCalendarDetails();
+ for(let day=1;day<=days;day++){const date=dueDateForMonth(day,calendarMonth),events=filteredCalendarEvents(date),allPaid=events.length>0&&events.every(x=>x.status==='paid'||x.status==='done'),cls=[date===calendarSelected?'selected':'',events.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}" aria-label="${day}, ${events.length} evento(s)">${day}${events.length?'<i class="calendar-dot"></i>':''}</button>`)}
+ $('calendarGrid').innerHTML=cells.join('');renderCalendarFilters();renderCalendarDetails();
 }
 function renderCalendarDetails(){
  const [y,m,d]=calendarSelected.split('-').map(Number),date=calendarSelected;$('calendarSelectedTitle').textContent=new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
- const events=calendarEventsForDate(date),fmt=v=>hidden?'••••••':money(v),statusLabel={pending:'Pendente',paid:'Pago',done:'Registrado'};
+ const events=filteredCalendarEvents(date),fmt=v=>hidden?'••••••':money(v),statusLabel={pending:'Pendente',paid:'Pago',done:'Registrado'};
  $('calendarDayDetails').innerHTML=events.length?events.map(event=>`<div class="tx"><div class="dot">${event.icon}</div><div class="txmain"><strong>${esc(event.title)}</strong><small>${esc(event.subtitle)} · ${statusLabel[event.status]||'Evento'}</small></div><div class="txval">${event.amount===null?'':fmt(event.amount)}${event.kind==='income'?'<small style="display:block;color:#26956a">Entrada</small>':event.kind==='expense'||event.kind==='debtPayment'?'<small style="display:block;color:#c75e5e">Saída</small>':''}${event.action==='pay-recurring'?'<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="'+esc(event.sourceId)+'">Marcar paga</button>':''}</div></div>`).join(''):'<span class="muted">Nenhum evento financeiro nesta data.</span>';
 }
 function renderRecurring(){
