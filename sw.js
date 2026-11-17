@@ -1,4 +1,4 @@
-const CACHE='meu-financeiro-v39';
+const CACHE='meu-financeiro-v40';
 const FILES=['./','./index.html','./app.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)));
