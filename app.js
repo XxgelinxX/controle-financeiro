@@ -10,7 +10,9 @@ const saveTrash=()=>{try{localStorage.setItem('meuControleFin_trash_v1',JSON.str
 let cards=[],cardPurchases=[];
 try{cards=JSON.parse(localStorage.getItem('meuControleFin_cards_v1')||'[]');if(!Array.isArray(cards))cards=[]}catch(e){cards=[]}
 try{cardPurchases=JSON.parse(localStorage.getItem('meuControleFin_cardPurchases_v1')||'[]');if(!Array.isArray(cardPurchases))cardPurchases=[]}catch(e){cardPurchases=[]}
-const saveCards=()=>{try{localStorage.setItem('meuControleFin_cards_v1',JSON.stringify(cards));localStorage.setItem('meuControleFin_cardPurchases_v1',JSON.stringify(cardPurchases))}catch(e){toast('Não foi possível salvar os cartões neste aparelho.')}};
+let cardInvoices=[];try{cardInvoices=JSON.parse(localStorage.getItem('meuControleFin_cardInvoices_v1')||'[]');if(!Array.isArray(cardInvoices))cardInvoices=[]}catch(e){cardInvoices=[]}
+
+const saveCards=()=>{try{localStorage.setItem('meuControleFin_cards_v1',JSON.stringify(cards));localStorage.setItem('meuControleFin_cardPurchases_v1',JSON.stringify(cardPurchases));localStorage.setItem('meuControleFin_cardInvoices_v1',JSON.stringify(cardInvoices))}catch(e){toast('Não foi possível salvar os cartões neste aparelho.')}};
 const applyTheme=theme=>{document.body.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀️ Claro':'🌙 Escuro';$('themeToggle').setAttribute('aria-label',theme==='dark'?'Ativar modo claro':'Ativar modo escuro');document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#101a14':'#123b2e'};
 let savedTheme='light';try{savedTheme=localStorage.getItem('meuControleFin_theme')||'light'}catch(e){}
 applyTheme(savedTheme==='dark'?'dark':'light');
@@ -94,14 +96,31 @@ function addMonths(date,n){let d=new Date(date+'T12:00:00');let day=d.getDate();
 function todayFromDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function installmentValue(p){return p.amount/p.installments}
 function purchaseInMonth(p,m){let card=cards.find(c=>c.id===p.cardId),start=monthKey(p.date);if(card&&Number(p.date.slice(8,10))>card.closing)start=addMonths(p.date,1);let diff=(Number(m.slice(0,4))-Number(start.slice(0,4)))*12+Number(m.slice(5,7))-Number(start.slice(5,7));return diff>=0&&diff<p.installments?installmentValue(p):0}
+function invoiceMonthOptions(){
+ const current=today().slice(0,7),opts=[];for(let n=-12;n<=12;n++){const d=new Date(Number(current.slice(0,4)),Number(current.slice(5,7))-1+n,1),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');opts.push(key)}return opts;
+}
+function invoiceRecord(cardId,month){return cardInvoices.find(x=>x.cardId===cardId&&x.month===month)}
+function invoiceAmount(cardId,month){return cardPurchases.filter(p=>p.cardId===cardId).reduce((sum,p)=>sum+purchaseInMonth(p,month),0)}
+function renderCardInvoices(){
+ const month=$('cardInvoiceMonth').value||today().slice(0,7);$('cardMonthLabel').textContent=new Date(month+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ const items=cards.map(c=>{const amount=invoiceAmount(c.id,month),record=invoiceRecord(c.id,month),due=dueDateForMonth(c.due,month),paid=!!record?.paidAt,overdue=!paid&&due<today(),closed=month<today().slice(0,7)||(month===today().slice(0,7)&&new Date().getDate()>=c.closing);return {c,amount,record,due,paid,overdue,closed};});
+ $('cardBills').innerHTML=items.length?items.map(x=>{const status=x.paid?'Paga':x.overdue?'Vencida':x.closed?'Fechada':'Aberta',color=x.paid?'#26956a':x.overdue?'#c75e5e':x.closed?'#d49a3a':'var(--brand-600)';return `<div class="panel" style="margin:10px 0"><div class="row"><b>💳 ${esc(x.c.name)}</b><b style="color:${color}">${status}</b></div><div class="stat">${money(x.amount)}</div><div class="row muted" style="font-size:12px;margin:6px 0 12px"><span>Vencimento: ${x.due.split('-').reverse().join('/')}</span><span>Fecha dia ${x.c.closing}</span></div><div class="row"><small class="muted">${x.paid?'Pagamento registrado em '+(x.record.paidAt.split('T')[0].split('-').reverse().join('/')):x.amount>0?'Fatura aguardando pagamento':'Sem compras nesta fatura'}</small>${x.amount>0?(x.paid?`<button class="btn soft" data-invoice-unpay="${x.c.id}" data-invoice-month="${month}">Desfazer pagamento</button>`:`<button class="btn primary" data-invoice-pay="${x.c.id}" data-invoice-month="${month}">Marcar como paga</button>`):''}</div></div>`}).join(''):'<div class="muted">Cadastre um cartão para acompanhar suas faturas.</div>';
+ const future=[];cards.forEach(c=>{for(let n=1;n<=24;n++){const d=new Date(Number(month.slice(0,4)),Number(month.slice(5,7))-1+n,1),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),v=invoiceAmount(c.id,key);if(v>0)future.push({card:c.name,month:key,amount:v})}});
+ $('cardFutureInstallments').innerHTML=future.length?future.sort((a,b)=>a.month.localeCompare(b.month)).map(x=>`<div class="tx"><div class="txmain"><strong>${esc(x.card)}</strong><small>${new Date(x.month+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</small></div><div class="txval">${money(x.amount)}</div></div>`).join(''):'<small class="muted">Não há parcelas futuras registradas.</small>';
+}
+$('cardInvoiceMonth').innerHTML=invoiceMonthOptions().map(m=>`<option value="${m}">${new Date(m+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</option>`).join('');
+$('cardInvoiceMonth').value=today().slice(0,7);
+$('cardInvoiceMonth').addEventListener('change',renderCardInvoices);
+document.addEventListener('click',e=>{
+ const pay=e.target.closest('[data-invoice-pay]');if(pay){const cardId=pay.dataset.invoicePay,month=pay.dataset.invoiceMonth,amount=invoiceAmount(cardId,month),card=cards.find(c=>c.id===cardId);if(!(amount>0)||!card)return;if(invoiceRecord(cardId,month)?.paidAt){toast('Esta fatura já está marcada como paga.');return}if(!confirm('Registrar o pagamento de '+money(amount)+' da fatura de '+card.name+'? Uma despesa será lançada para refletir a saída do dinheiro.'))return;const id='card-invoice-'+cardId+'-'+month;const transaction={id,type:'expense',amount,description:'Pagamento fatura - '+card.name,category:'Cartão de crédito',date:today(),cardInvoicePaymentId:id};data.push(transaction);cardInvoices.push({cardId,month,paidAt:new Date().toISOString(),transactionId:id});save();saveCards();render();renderCardInvoices();toast('Fatura paga e despesa registrada!')}
+ const undo=e.target.closest('[data-invoice-unpay]');if(undo){const cardId=undo.dataset.invoiceUnpay,month=undo.dataset.invoiceMonth,record=invoiceRecord(cardId,month);if(!record)return;if(!confirm('Desfazer o pagamento? A despesa de pagamento vinculada será removida dos lançamentos.'))return;data=data.filter(x=>x.id!==record.transactionId);cardInvoices=cardInvoices.filter(x=>!(x.cardId===cardId&&x.month===month));save();saveCards();render();renderCardInvoices();toast('Pagamento desfeito.')}
+});
 function renderCards(){
  const sel=$('purchaseCard');if(!sel)return;
  sel.innerHTML='<option value="">Selecione um cartão</option>'+cards.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.bank||'')}</option>`).join('');
  $('cardsCount').textContent=cards.length+' cartão(ões)';
  $('cardsList').innerHTML=cards.map(c=>{let used=cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+p.amount,0),available=Math.max(0,c.limit-used);return `<div class="credit-card"><div class="row"><b>💳 ${esc(c.name)}</b><small>${esc(c.bank||'')}</small></div><div class="muted" style="color:#d2e6dc;font-size:12px;margin-top:12px">Limite disponível</div><div class="stat">${money(available)}</div><div class="row" style="font-size:12px;margin-top:10px"><span>Limite: ${money(c.limit)}</span><span>Usado: ${money(used)}</span></div><div class="row" style="font-size:12px;margin-top:7px"><span>Fecha dia ${c.closing}</span><span>Vence dia ${c.due}</span></div><div class="card-actions"><button class="btn soft" data-card-edit="${c.id}">Editar cartão</button><button class="btn soft" data-card-delete="${c.id}">Excluir cartão</button></div></div>`}).join('')||'<div class="panel muted">Cadastre seu primeiro cartão acima.</div>';
- const m=today().slice(0,7);$('cardMonthLabel').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
- const bills=cards.map(c=>({c,total:cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+purchaseInMonth(p,m),0)}));
- $('cardBills').innerHTML=bills.length?bills.map(x=>`<div class="tx"><div class="dot">💳</div><div class="txmain"><strong>${esc(x.c.name)}</strong><small>Vencimento dia ${x.c.due}</small></div><div class="txval">${money(x.total)}</div></div>`).join(''):'<div class="muted">Cadastre um cartão para acompanhar suas faturas.</div>';
+ renderCardInvoices();
  $('cardPurchases').innerHTML=sorted(cardPurchases).map(p=>{let c=cards.find(x=>x.id===p.cardId);return `<div class="tx"><div class="dot">🛍️</div><div class="txmain"><strong>${esc(p.description)}</strong><small>${esc(c?.name||'Cartão removido')} · ${p.date.split('-').reverse().join('/')} · ${p.installments}x de ${money(installmentValue(p))}</small></div><div class="txval">${money(p.amount)}<button class="del" data-purchase-edit="${p.id}">Editar</button><button class="del" data-purchase-delete="${p.id}">Excluir</button></div></div>`}).join('')||'<div class="muted">Nenhuma compra registrada.</div>';
 }
 $('cardForm').addEventListener('submit',e=>{e.preventDefault();let limit=Number($('cardLimit').value),closing=Number($('cardClosing').value),due=Number($('cardDue').value);if(!(limit>0&&closing>=1&&closing<=31&&due>=1&&due<=31)){toast('Confira limite e dias informados.');return}cards.push({id:String(Date.now())+Math.random(),name:$('cardName').value.trim(),bank:$('cardBank').value.trim(),limit,closing,due});saveCards();e.target.reset();renderCards();toast('Cartão cadastrado!')});
@@ -234,7 +253,7 @@ editForm.addEventListener('submit',e=>{
 });
 
 
-const BACKUP_KEYS=['meuControleFin_preferences_v1','meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_monthlyPlans_v1','meuControleFin_theme'];
+const BACKUP_KEYS=['meuControleFin_cardInvoices_v1','meuControleFin_preferences_v1','meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_monthlyPlans_v1','meuControleFin_theme'];
 function makeBackup(){
  const payload={};BACKUP_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(raw===null){payload[key]=key==='meuControleFin_theme'?'light':key==='meuControleFin_preferences_v1'?{accent:'green',font:'dm',fontSize:'normal',hideValues:false}:[];}else{payload[key]=JSON.parse(raw)}});
  return {app:'Meu Controle Financeiro',formatVersion:1,exportedAt:new Date().toISOString(),data:payload};
@@ -255,7 +274,7 @@ $('backupFile').addEventListener('change',async e=>{
   const backup=JSON.parse(await file.text()),payload=backup&&backup.data;
   if(!backup||backup.app!=='Meu Controle Financeiro'||backup.formatVersion!==1||!payload)throw new Error('Este arquivo não é um backup válido do aplicativo.');
   for(const key of BACKUP_KEYS){
-   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'||key==='meuControleFin_monthlyPlans_v1'){payload[key]=[];continue;}if(key==='meuControleFin_preferences_v1'){payload[key]={accent:'green',font:'dm',fontSize:'normal',hideValues:false};continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
+   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'||key==='meuControleFin_monthlyPlans_v1'||key==='meuControleFin_cardInvoices_v1'){payload[key]=[];continue;}if(key==='meuControleFin_preferences_v1'){payload[key]={accent:'green',font:'dm',fontSize:'normal',hideValues:false};continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
    if(key==='meuControleFin_preferences_v1'){if(!payload[key]||typeof payload[key]!=='object'||Array.isArray(payload[key]))throw new Error('Preferências inválidas no backup.');}else if(key==='meuControleFin_theme'){if(!['light','dark'].includes(payload[key]))throw new Error('Tema inválido no backup.');}
    else if(!Array.isArray(payload[key])||payload[key].some(item=>!item||typeof item!=='object'||Array.isArray(item)))throw new Error('Há dados inválidos no backup. Nenhum dado foi alterado.');
   }
@@ -263,10 +282,10 @@ $('backupFile').addEventListener('change',async e=>{
   const previous={};BACKUP_KEYS.forEach(key=>previous[key]=localStorage.getItem(key));
   try{BACKUP_KEYS.forEach(key=>localStorage.setItem(key,JSON.stringify(payload[key])));}
   catch(saveError){BACKUP_KEYS.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});throw new Error('Não foi possível restaurar. Seus dados anteriores foram mantidos.');}
-  data=payload.meuControleFin_v1;trash=payload.meuControleFin_trash_v1||[];cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;
+  data=payload.meuControleFin_v1;trash=payload.meuControleFin_trash_v1||[];cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;cardInvoices=payload.meuControleFin_cardInvoices_v1||[];
   budgets=payload.meuControleFin_budgets_v1;recurringBills=payload.meuControleFin_recurring_v1;
   goals=payload.meuControleFin_goals_v1;goalDeposits=payload.meuControleFin_goalDeposits_v1;monthlyPlans=payload.meuControleFin_monthlyPlans_v1||[];
-  applyTheme(payload.meuControleFin_theme);preferences=payload.meuControleFin_preferences_v1||preferences;applyPreferences();render();renderCards();renderBudgets();renderMonthlyPlan();renderRecurring();renderGoals();renderReports();
+  applyTheme(payload.meuControleFin_theme);preferences=payload.meuControleFin_preferences_v1||preferences;applyPreferences();render();renderCards();renderCardInvoices();renderBudgets();renderMonthlyPlan();renderRecurring();renderGoals();renderReports();
   toast('Backup restaurado com sucesso!');
  }catch(err){toast(err.message||'Não foi possível ler esse backup.');}
  finally{e.target.value='';}
