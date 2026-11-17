@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id), money=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 let data=[];try{data=JSON.parse(localStorage.getItem('meuControleFin_v1')||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
-let type='income',filter='all',hidden=false;
+let type='income',filter='all',hidden=false;\nlet cards=[],cardPurchases=[];\ntry{cards=JSON.parse(localStorage.getItem('meuControleFin_cards_v1')||'[]');if(!Array.isArray(cards))cards=[]}catch(e){cards=[]}\ntry{cardPurchases=JSON.parse(localStorage.getItem('meuControleFin_cardPurchases_v1')||'[]');if(!Array.isArray(cardPurchases))cardPurchases=[]}catch(e){cardPurchases=[]}\nconst saveCards=()=>{try{localStorage.setItem('meuControleFin_cards_v1',JSON.stringify(cards));localStorage.setItem('meuControleFin_cardPurchases_v1',JSON.stringify(cardPurchases))}catch(e){toast('Não foi possível salvar os cartões neste aparelho.')}};
 const applyTheme=theme=>{document.body.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀️ Claro':'🌙 Escuro';$('themeToggle').setAttribute('aria-label',theme==='dark'?'Ativar modo claro':'Ativar modo escuro');document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#111a16':'#193f32'};
 let savedTheme='light';try{savedTheme=localStorage.getItem('meuControleFin_theme')||'light'}catch(e){}
 applyTheme(savedTheme==='dark'?'dark':'light');
@@ -25,7 +25,7 @@ function render(){
  $('historyList').innerHTML=a.map(row).join('')||'<div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação encontrada.</div>';
  $('monthResult').textContent=money(im-em);cats('expense','categories',mi);cats('income','incomeCategories',mi);
 }
-function page(p){document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();if(p==='add')$('date').value=today();window.scrollTo(0,0)}
+function page(p){document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();if(p==='add')$('date').value=today();if(p==='cards'){ $('purchaseDate').value=today();renderCards();}window.scrollTo(0,0)}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>page(b.dataset.page)));
 function setType(t){type=t;$('incomeType').className='btn '+(t==='income'?'primary':'soft');$('expenseType').className='btn '+(t==='expense'?'primary':'soft');let opts=t==='income'?['Salário','Renda extra','Investimentos','Outros']:['Moradia','Alimentação','Transporte','Saúde','Lazer','Compras','Contas','Cartão de crédito','Outros'];$('category').innerHTML=opts.map(x=>`<option>${x}</option>`).join('')}
 $('incomeType').onclick=()=>setType('income');$('expenseType').onclick=()=>setType('expense');
@@ -33,6 +33,26 @@ $('txForm').addEventListener('submit',e=>{e.preventDefault();let amount=Number($
 document.addEventListener('click',e=>{let b=e.target.closest('[data-delete]');if(b){data=data.filter(x=>String(x.id)!==b.dataset.delete);save();render();toast('Movimentação excluída.')}let f=e.target.closest('[data-filter]');if(f){filter=f.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.className='btn '+(x===f?'primary':'soft'));render()}});
 $('filterText').addEventListener('input',render);$('toggleBalance').onclick=()=>{hidden=!hidden;$('toggleBalance').textContent=hidden?'⊘':'◉';render()};
 $('export').onclick=()=>{let csv='Tipo;Descricao;Categoria;Valor;Data\n'+data.map(x=>[x.type==='income'?'Receita':'Despesa',x.description,x.category,x.amount,x.date].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');let a=document.createElement('a'),u=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.href=u;a.download='meu-controle-financeiro.csv';a.click();URL.revokeObjectURL(u);toast('Arquivo exportado.')};
-$('date').value=today();setType('income');render();
+$('date').value=today();setType('income');render();\n
+function monthKey(d){return d.slice(0,7)}
+function addMonths(date,n){let d=new Date(date+'T12:00:00');let day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+n);let last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return monthKey(todayFromDate(d))}
+function todayFromDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function installmentValue(p){return p.amount/p.installments}
+function purchaseInMonth(p,m){let start=monthKey(p.date);let diff=(Number(m.slice(0,4))-Number(start.slice(0,4)))*12+Number(m.slice(5,7))-Number(start.slice(5,7));return diff>=0&&diff<p.installments?installmentValue(p):0}
+function renderCards(){
+ const sel=$('purchaseCard');if(!sel)return;
+ sel.innerHTML='<option value="">Selecione um cartão</option>'+cards.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.bank||'')}</option>`).join('');
+ $('cardsCount').textContent=cards.length+' cartão(ões)';
+ $('cardsList').innerHTML=cards.map(c=>{let used=cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+p.amount,0),available=Math.max(0,c.limit-used),bill=cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+purchaseInMonth(p,today().slice(0,7)),0);return `<div class="credit-card"><div class="row"><b>💳 ${esc(c.name)}</b><small>${esc(c.bank||'')}</small></div><div class="muted" style="color:#d2e6dc;font-size:12px;margin-top:12px">Limite disponível</div><div class="stat">${money(available)}</div><div class="row" style="font-size:12px;margin-top:10px"><span>Limite: ${money(c.limit)}</span><span>Usado: ${money(used)}</span></div><div class="row" style="font-size:12px;margin-top:7px"><span>Fecha dia ${c.closing}</span><span>Vence dia ${c.due}</span></div><div class="card-actions"><button class="btn soft" data-card-delete="${c.id}">Excluir cartão</button></div></div>`}).join('')||'<div class="panel muted">Cadastre seu primeiro cartão acima.</div>';
+ const m=today().slice(0,7);$('cardMonthLabel').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ const bills=cards.map(c=>({c,total:cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+purchaseInMonth(p,m),0)}));
+ $('cardBills').innerHTML=bills.length?bills.map(x=>`<div class="tx"><div class="dot">💳</div><div class="txmain"><strong>${esc(x.c.name)}</strong><small>Vencimento dia ${x.c.due}</small></div><div class="txval">${money(x.total)}</div></div>`).join(''):'<div class="muted">Cadastre um cartão para acompanhar suas faturas.</div>';
+ $('cardPurchases').innerHTML=sorted(cardPurchases).map(p=>{let c=cards.find(x=>x.id===p.cardId);return `<div class="tx"><div class="dot">🛍️</div><div class="txmain"><strong>${esc(p.description)}</strong><small>${esc(c?.name||'Cartão removido')} · ${p.date.split('-').reverse().join('/')} · ${p.installments}x de ${money(installmentValue(p))}</small></div><div class="txval">${money(p.amount)}<button class="del" data-purchase-delete="${p.id}">Excluir</button></div></div>`}).join('')||'<div class="muted">Nenhuma compra registrada.</div>';
+}
+$('cardForm').addEventListener('submit',e=>{e.preventDefault();let limit=Number($('cardLimit').value),closing=Number($('cardClosing').value),due=Number($('cardDue').value);if(!(limit>0&&closing>=1&&closing<=31&&due>=1&&due<=31)){toast('Confira limite e dias informados.');return}cards.push({id:String(Date.now())+Math.random(),name:$('cardName').value.trim(),bank:$('cardBank').value.trim(),limit,closing,due});saveCards();e.target.reset();renderCards();toast('Cartão cadastrado!')});
+$('purchaseForm').addEventListener('submit',e=>{e.preventDefault();let amount=Number($('purchaseAmount').value),installments=Number($('purchaseInstallments').value);if(!$('purchaseCard').value||!(amount>0)){toast('Selecione um cartão e informe um valor válido.');return}cardPurchases.push({id:String(Date.now())+Math.random(),cardId:$('purchaseCard').value,description:$('purchaseDescription').value.trim(),amount,installments,date:$('purchaseDate').value});saveCards();e.target.reset();$('purchaseDate').value=today();renderCards();toast('Compra registrada!')});
+document.addEventListener('click',e=>{let c=e.target.closest('[data-card-delete]');if(c){if(!confirm('Excluir este cartão e as compras vinculadas?'))return;cards=cards.filter(x=>x.id!==c.dataset.cardDelete);cardPurchases=cardPurchases.filter(x=>x.cardId!==c.dataset.cardDelete);saveCards();renderCards();toast('Cartão excluído.')}let p=e.target.closest('[data-purchase-delete]');if(p){cardPurchases=cardPurchases.filter(x=>x.id!==p.dataset.purchaseDelete);saveCards();renderCards();toast('Compra excluída.')}});
+$('purchaseDate').value=today();renderCards();
+
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
