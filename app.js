@@ -34,6 +34,7 @@ function render(){
  let q=$('filterText').value.toLowerCase(),a=sorted(data).filter(x=>(filter==='all'||x.type===filter)&&(!q||(x.description+' '+x.category).toLowerCase().includes(q)));
  $('historyList').innerHTML=a.map(row).join('')||'<div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação encontrada.</div>';
  $('monthResult').textContent=money(im-em);cats('expense','categories',mi);cats('income','incomeCategories',mi);
+ if(window.renderDashboardInsights)window.renderDashboardInsights();
 }
 function renderReports(){
  const months=Number($('reportPeriod').value||6),now=new Date(),keys=[];
@@ -225,6 +226,32 @@ $('backupFile').addEventListener('change',async e=>{
  }catch(err){toast(err.message||'Não foi possível ler esse backup.');}
  finally{e.target.value='';}
 });
+
+
+function renderDashboardInsights(){
+ const now=today(),month=now.slice(0,7),monthItems=data.filter(x=>x.date&&x.date.slice(0,7)===month);
+ const income=total('income',monthItems),expense=total('expense',monthItems),net=income-expense,saving=income>0?net/income*100:0;
+ const masked=hidden?'••••••':money(net);
+ $('dashNet').textContent=masked;$('dashNet').style.color=net>=0?'#26956a':'#c75e5e';
+ $('dashNetHint').textContent=income?'Receitas menos despesas':'Adicione receitas para acompanhar';
+ $('dashSaving').textContent=hidden?'••••':(saving.toFixed(1).replace('.',',')+'%');
+ $('dashSavingHint').textContent=income?(saving>=20?'Ótimo ritmo de economia':saving>=0?'Uma parte da renda ficou livre':'As despesas superaram as receitas'):'Sem receitas neste mês';
+ const keys=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);keys.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'))}
+ const monthly=keys.map(key=>{const list=data.filter(x=>x.date&&x.date.slice(0,7)===key);return {key,inc:total('income',list),exp:total('expense',list)}});
+ const max=Math.max(1,...monthly.flatMap(m=>[m.inc,m.exp]));
+ $('dashMonthlyChart').innerHTML=monthly.map(m=>'<div class="dash-month"><div class="dash-bars"><div class="dash-bar income" title="Entradas: '+money(m.inc)+'" style="height:'+Math.max(m.inc?3:0,m.inc/max*100)+'%"></div><div class="dash-bar expense" title="Saídas: '+money(m.exp)+'" style="height:'+Math.max(m.exp?3:0,m.exp/max*100)+'%"></div></div><small>'+new Date(m.key+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'</small></div>').join('');
+ const groups={};monthItems.filter(x=>x.type==='expense').forEach(x=>groups[x.category]=(groups[x.category]||0)+x.amount);
+ const categoryRows=Object.entries(groups).sort((a,b)=>b[1]-a[1]).slice(0,5),categoryTotal=categoryRows.reduce((s,x)=>s+x[1],0);
+ $('dashCategories').innerHTML=categoryRows.length?categoryRows.map(([name,value])=>'<div class="dash-category"><div class="row"><span>'+esc(name)+'</span><b>'+ (hidden?'••••••':money(value))+'</b></div><div class="bar"><div style="width:'+(categoryTotal?value/categoryTotal*100:0)+'%;background:#df7777"></div></div></div>').join(''):'<span class="muted">Sem despesas registradas neste mês.</span>';
+ const budgetRows=budgets.map(b=>{const spent=monthItems.filter(x=>x.type==='expense'&&x.category===b.category).reduce((s,x)=>s+x.amount,0),pct=b.limit>0?spent/b.limit*100:0;return {name:b.category,spent,limit:b.limit,pct}}).sort((a,b)=>b.pct-a.pct).slice(0,4);
+ $('dashBudgets').innerHTML=budgetRows.length?budgetRows.map(b=>'<div class="dash-alert"><div class="row"><b>'+esc(b.name)+'</b><span class="dash-status '+(b.pct>=100?'bad':b.pct>=80?'warn':'good')+'">'+(b.pct>=100?'Limite excedido':b.pct>=80?'Atenção':'Dentro do limite')+'</span></div><small>'+ (hidden?'••••••':money(b.spent))+' de '+(hidden?'••••••':money(b.limit))+' · '+b.pct.toFixed(0)+'% utilizado</small><div class="bar"><div style="width:'+Math.min(100,b.pct)+'%;background:'+(b.pct>=100?'#d65f5f':b.pct>=80?'#d49a3a':'#55b98b')+'"></div></div></div>').join(''):'<span class="muted">Cadastre limites na aba Planejamento para receber alertas.</span>';
+ const upcoming=[];const todayDate=new Date(now+'T12:00:00'),end=new Date(todayDate);end.setDate(end.getDate()+7);
+ for(const offset of [0,1]){const base=new Date(todayDate.getFullYear(),todayDate.getMonth()+offset,1),key=base.getFullYear()+'-'+String(base.getMonth()+1).padStart(2,'0');recurringBills.forEach(b=>{const date=dueDateForMonth(b.due,key),dt=new Date(date+'T12:00:00');if(dt>=todayDate&&dt<=end&&!paidInMonth(b,key))upcoming.push({bill:b,date})})}
+ upcoming.sort((a,b)=>a.date.localeCompare(b.date));
+ $('dashUpcoming').innerHTML=upcoming.length?upcoming.slice(0,4).map(x=>'<div class="dash-alert"><div class="row"><b>'+esc(x.bill.name)+'</b><span class="dash-status warn">'+(x.date===now?'Vence hoje':x.date.split('-').reverse().join('/'))+'</span></div><small>'+esc(x.bill.category)+' · '+(hidden?'••••••':money(x.bill.amount))+'</small></div>').join(''):'<span class="muted">Nenhuma conta pendente nos próximos 7 dias.</span>';
+}
+window.renderDashboardInsights=renderDashboardInsights;
+renderDashboardInsights();
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
