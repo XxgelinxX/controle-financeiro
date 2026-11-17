@@ -332,8 +332,8 @@ button:not(.del),.btn,.theme-toggle{min-height:44px}
 .calendar-day{min-height:44px}
 .main-nav{padding-bottom:calc(9px + env(safe-area-inset-bottom));min-height:72px}
 .nav-menu{max-height:min(70vh,520px);overflow-y:auto;overscroll-behavior:contain}
-.edit-overlay{padding:0;align-items:flex-end}
-.edit-dialog{width:100%;max-width:560px;max-height:min(90dvh,820px);padding:18px 16px calc(18px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0;overscroll-behavior:contain}
+.edit-overlay{padding:0!important;align-items:flex-end!important}
+.edit-dialog{width:100%!important;max-width:560px;max-height:min(90dvh,820px);padding:18px 16px calc(18px + env(safe-area-inset-bottom))!important;border-radius:22px 22px 0 0!important;overscroll-behavior:contain}
 .edit-dialog .edit-actions{position:sticky;bottom:-18px;padding:12px 0 4px;background:var(--surface)}
 .edit-dialog .edit-actions button{min-height:48px}
 @media(max-width:430px){
@@ -366,8 +366,8 @@ button:not(.del),.btn,.theme-toggle{min-height:44px}
  .edit-dialog{padding-left:13px;padding-right:13px}
 }
 @media(min-width:600px){
- .edit-overlay{align-items:center;padding:18px}
- .edit-dialog{width:min(100%,560px);border-radius:22px;padding:20px}
+ .edit-overlay{align-items:center!important;padding:18px!important}
+ .edit-dialog{width:min(100%,560px)!important;border-radius:22px!important;padding:20px!important}
  .edit-dialog .edit-actions{position:static;padding:0}
 }
 @media(hover:none){
