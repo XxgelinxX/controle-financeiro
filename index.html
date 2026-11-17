@@ -223,6 +223,41 @@ body[data-theme="dark"] .nav-menu-item>span:first-child{background:#263c2e}
 body[data-theme="dark"] .nav-menu-item:active,body[data-theme="dark"] .nav-menu-item:hover{background:#263c2e}
 @media(min-width:500px){.main-nav{padding-left:12px;padding-right:12px}.nav-menu{right:0}}
 
+
+/* Etapa 5 — dashboard inteligente */
+.dash-insights{margin-top:18px}
+.dash-section-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px}
+.dash-section-head>div{display:grid;gap:3px}
+.dash-section-head small,.dash-subtitle{display:block;color:var(--muted-ink);font-size:11px;margin-top:4px}
+.dash-chip{font-size:9px;font-weight:800;letter-spacing:.7px;color:#34765a;background:#e9f4ed;border-radius:99px;padding:6px 8px}
+.dash-kpis{gap:9px}
+.dash-kpis .panel{margin-bottom:10px;padding:14px;min-width:0}
+.dash-kpi{display:block;font-size:clamp(17px,4.8vw,22px);font-weight:850;letter-spacing:-.5px;margin-top:8px;overflow-wrap:anywhere}
+.dash-hint{display:block;color:var(--muted-ink);font-size:10px;margin-top:5px}
+.dash-chart-panel{padding:16px 13px}
+.dash-legend{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--muted-ink);white-space:nowrap}
+.dash-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dash-legend .income-key{background:#55b98b}.dash-legend .expense-key{background:#df7777;margin-left:4px}
+.dash-month-chart{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;align-items:end;height:142px;padding:15px 0 0}
+.dash-month{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;min-width:0}
+.dash-bars{height:105px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:3px;border-bottom:1px solid var(--line);padding:0 2px}
+.dash-bar{width:min(13px,36%);min-height:2px;border-radius:5px 5px 2px 2px}
+.dash-bar.income{background:#55b98b}.dash-bar.expense{background:#df7777}
+.dash-month small{font-size:9px;color:var(--muted-ink);white-space:nowrap}
+.dash-category-list,.dash-alert-list{margin-top:12px}
+.dash-category{margin:0 0 12px}
+.dash-category:last-child{margin-bottom:0}
+.dash-category .row,.dash-alert .row{font-size:12px}
+.dash-category .bar{height:7px;margin:6px 0 0}
+.dash-alert{padding:10px 0;border-bottom:1px solid var(--line)}
+.dash-alert:last-child{border-bottom:0;padding-bottom:0}
+.dash-alert small{display:block;color:var(--muted-ink);font-size:10px;margin-top:3px}
+.dash-status{font-size:10px;font-weight:800;white-space:nowrap}
+.dash-status.warn{color:#bd8428}.dash-status.good{color:#26956a}.dash-status.bad{color:#c75e5e}
+body[data-theme="dark"] .dash-chip{background:#263c2e;color:#a9d9b8}
+body[data-theme="dark"] .dash-bars{border-color:#405448}
+@media(max-width:370px){.dash-kpis .panel{padding:12px}.dash-legend{font-size:8px;gap:3px}.dash-month-chart{gap:4px}}
+
 </style>
 </head>
 <body>
@@ -232,6 +267,18 @@ body[data-theme="dark"] .nav-menu-item:active,body[data-theme="dark"] .nav-menu-
  <div class="panel balance"><div class="row"><span class="muted">Saldo disponível</span><button id="toggleBalance" aria-label="Ocultar saldo" style="background:none;border:0;color:white">◉</button></div><div class="amount" id="balance">R$ 0,00</div><small class="muted">Resultado das suas movimentações</small></div>
  <div class="grid"><div class="panel"><div class="muted" style="font-size:13px">↗ Receitas</div><div class="stat" id="income">R$ 0,00</div></div><div class="panel"><div class="muted" style="font-size:13px">↙ Despesas</div><div class="stat" id="expense">R$ 0,00</div></div></div>
  <div class="panel"><div class="row"><b>Resumo do mês</b><small class="muted" id="monthLabel"></small></div><div class="row" style="font-size:13px;margin-top:15px"><span class="muted">Receitas</span><b id="monthIncome">R$ 0,00</b></div><div class="bar"><div id="incomeBar" style="background:#55b98b;width:0%"></div></div><div class="row" style="font-size:13px"><span class="muted">Despesas</span><b id="monthExpense">R$ 0,00</b></div><div class="bar"><div id="expenseBar" style="background:#df7777;width:0%"></div></div></div>
+
+ <div class="dash-insights">
+  <div class="dash-section-head"><div><b>Visão inteligente</b><small>Seus números em um só lugar</small></div><span class="dash-chip">ATUALIZADO</span></div>
+  <div class="grid dash-kpis">
+   <div class="panel"><small class="muted">Resultado do mês</small><strong id="dashNet" class="dash-kpi">R$ 0,00</strong><small id="dashNetHint" class="dash-hint">Receitas menos despesas</small></div>
+   <div class="panel"><small class="muted">Taxa de economia</small><strong id="dashSaving" class="dash-kpi">0%</strong><small id="dashSavingHint" class="dash-hint">Do que entrou, quanto sobrou</small></div>
+  </div>
+  <div class="panel dash-chart-panel"><div class="row"><div><b>Fluxo financeiro</b><small class="muted dash-subtitle">Últimos 6 meses</small></div><span class="dash-legend"><i class="income-key"></i> Entradas <i class="expense-key"></i> Saídas</span></div><div id="dashMonthlyChart" class="dash-month-chart"></div></div>
+  <div class="panel"><div class="row"><b>Onde você mais gastou</b><small class="muted">Este mês</small></div><div id="dashCategories" class="dash-category-list"><span class="muted">Sem despesas registradas.</span></div></div>
+  <div class="panel"><div class="row"><b>Limites de gastos</b><button class="del" data-page="budgets">Ver planejamento</button></div><div id="dashBudgets" class="dash-alert-list"><span class="muted">Nenhum limite cadastrado.</span></div></div>
+  <div class="panel"><div class="row"><b>Próximas contas</b><button class="del" data-page="summary">Ver calendário</button></div><div id="dashUpcoming" class="dash-alert-list"><span class="muted">Nenhuma conta próxima.</span></div></div>
+ </div>
  <div class="row" style="margin:18px 2px 8px"><b>Últimas movimentações</b><button class="soft btn" data-page="history">Ver todas</button></div><div class="panel" id="recent"><div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação ainda.</div></div>
  <button class="btn primary wide" data-page="add">＋ Adicionar movimentação</button>
  <div class="panel" style="margin-top:16px"><b>Backup e restauração</b><p class="muted" style="font-size:13px;margin:8px 0 12px">Salve uma cópia completa dos seus dados ou restaure um backup em outro aparelho.</p><button class="btn soft wide" id="backupExport" type="button">⬇️ Baixar backup completo</button><input id="backupFile" type="file" accept="application/json,.json" class="hidden"><button class="btn soft wide" id="backupImportButton" type="button" style="margin-top:9px">⬆️ Restaurar backup</button><small class="muted" style="display:block;margin-top:10px">O backup inclui lançamentos, cartões, compras, limites, contas fixas, metas, depósitos e tema. A restauração substitui os dados atuais após sua confirmação.</small></div>
@@ -265,5 +312,5 @@ body[data-theme="dark"] .nav-menu-item:active,body[data-theme="dark"] .nav-menu-
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button></div></details></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 6.6 · Visual 4/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
-<script src="app.js?v=22"></script>
+<script src="app.js?v=23"></script>
 </body></html>
