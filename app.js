@@ -1,4 +1,4 @@
-(()=>{
+(()=> {
 const $=id=>document.getElementById(id), money=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 let data=[];try{data=JSON.parse(localStorage.getItem('meuControleFin_v1')||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
@@ -29,7 +29,7 @@ function render(){
  $('historyList').innerHTML=a.map(row).join('')||'<div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação encontrada.</div>';
  $('monthResult').textContent=money(im-em);cats('expense','categories',mi);cats('income','incomeCategories',mi);
 }
-function page(p){document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();if(p==='add')$('date').value=today();if(p==='cards'){ $('purchaseDate').value=today();renderCards();}if(p==='budgets'){renderBudgets();renderRecurring()}if(p==='summary')renderCalendar();window.scrollTo(0,0)}
+function page(p){document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();if(p==='add')$('date').value=today();if(p==='cards'){$('purchaseDate').value=today();renderCards()}if(p==='budgets'){renderBudgets();renderRecurring()}if(p==='goals')renderGoals();if(p==='summary')renderCalendar();window.scrollTo(0,0)}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>page(b.dataset.page)));
 function setType(t){type=t;$('incomeType').className='btn '+(t==='income'?'primary':'soft');$('expenseType').className='btn '+(t==='expense'?'primary':'soft');let opts=t==='income'?['Salário','Renda extra','Investimentos','Outros']:['Moradia','Alimentação','Transporte','Saúde','Lazer','Compras','Contas','Cartão de crédito','Outros'];$('category').innerHTML=opts.map(x=>`<option>${x}</option>`).join('')}
 $('incomeType').onclick=()=>setType('income');$('expenseType').onclick=()=>setType('expense');
@@ -38,7 +38,6 @@ document.addEventListener('click',e=>{let b=e.target.closest('[data-delete]');if
 $('filterText').addEventListener('input',render);$('toggleBalance').onclick=()=>{hidden=!hidden;$('toggleBalance').textContent=hidden?'⊘':'◉';render()};
 $('export').onclick=()=>{let csv='Tipo;Descricao;Categoria;Valor;Data\n'+data.map(x=>[x.type==='income'?'Receita':'Despesa',x.description,x.category,x.amount,x.date].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');let a=document.createElement('a'),u=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.href=u;a.download='meu-controle-financeiro.csv';a.click();URL.revokeObjectURL(u);toast('Arquivo exportado.')};
 $('date').value=today();setType('income');render();
-
 function monthKey(d){return d.slice(0,7)}
 function addMonths(date,n){let d=new Date(date+'T12:00:00');let day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+n);let last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return monthKey(todayFromDate(d))}
 function todayFromDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -48,7 +47,7 @@ function renderCards(){
  const sel=$('purchaseCard');if(!sel)return;
  sel.innerHTML='<option value="">Selecione um cartão</option>'+cards.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.bank||'')}</option>`).join('');
  $('cardsCount').textContent=cards.length+' cartão(ões)';
- $('cardsList').innerHTML=cards.map(c=>{let used=cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+p.amount,0),available=Math.max(0,c.limit-used),bill=cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+purchaseInMonth(p,today().slice(0,7)),0);return `<div class="credit-card"><div class="row"><b>💳 ${esc(c.name)}</b><small>${esc(c.bank||'')}</small></div><div class="muted" style="color:#d2e6dc;font-size:12px;margin-top:12px">Limite disponível</div><div class="stat">${money(available)}</div><div class="row" style="font-size:12px;margin-top:10px"><span>Limite: ${money(c.limit)}</span><span>Usado: ${money(used)}</span></div><div class="row" style="font-size:12px;margin-top:7px"><span>Fecha dia ${c.closing}</span><span>Vence dia ${c.due}</span></div><div class="card-actions"><button class="btn soft" data-card-delete="${c.id}">Excluir cartão</button></div></div>`}).join('')||'<div class="panel muted">Cadastre seu primeiro cartão acima.</div>';
+ $('cardsList').innerHTML=cards.map(c=>{let used=cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+p.amount,0),available=Math.max(0,c.limit-used);return `<div class="credit-card"><div class="row"><b>💳 ${esc(c.name)}</b><small>${esc(c.bank||'')}</small></div><div class="muted" style="color:#d2e6dc;font-size:12px;margin-top:12px">Limite disponível</div><div class="stat">${money(available)}</div><div class="row" style="font-size:12px;margin-top:10px"><span>Limite: ${money(c.limit)}</span><span>Usado: ${money(used)}</span></div><div class="row" style="font-size:12px;margin-top:7px"><span>Fecha dia ${c.closing}</span><span>Vence dia ${c.due}</span></div><div class="card-actions"><button class="btn soft" data-card-delete="${c.id}">Excluir cartão</button></div></div>`}).join('')||'<div class="panel muted">Cadastre seu primeiro cartão acima.</div>';
  const m=today().slice(0,7);$('cardMonthLabel').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
  const bills=cards.map(c=>({c,total:cardPurchases.filter(p=>p.cardId===c.id).reduce((s,p)=>s+purchaseInMonth(p,m),0)}));
  $('cardBills').innerHTML=bills.length?bills.map(x=>`<div class="tx"><div class="dot">💳</div><div class="txmain"><strong>${esc(x.c.name)}</strong><small>Vencimento dia ${x.c.due}</small></div><div class="txval">${money(x.total)}</div></div>`).join(''):'<div class="muted">Cadastre um cartão para acompanhar suas faturas.</div>';
@@ -58,80 +57,54 @@ $('cardForm').addEventListener('submit',e=>{e.preventDefault();let limit=Number(
 $('purchaseForm').addEventListener('submit',e=>{e.preventDefault();let amount=Number($('purchaseAmount').value),installments=Number($('purchaseInstallments').value);if(!$('purchaseCard').value||!(amount>0)){toast('Selecione um cartão e informe um valor válido.');return}cardPurchases.push({id:String(Date.now())+Math.random(),cardId:$('purchaseCard').value,description:$('purchaseDescription').value.trim(),amount,installments,date:$('purchaseDate').value});saveCards();e.target.reset();$('purchaseDate').value=today();renderCards();toast('Compra registrada!')});
 document.addEventListener('click',e=>{let c=e.target.closest('[data-card-delete]');if(c){if(!confirm('Excluir este cartão e as compras vinculadas?'))return;cards=cards.filter(x=>x.id!==c.dataset.cardDelete);cardPurchases=cardPurchases.filter(x=>x.cardId!==c.dataset.cardDelete);saveCards();renderCards();toast('Cartão excluído.')}let p=e.target.closest('[data-purchase-delete]');if(p){cardPurchases=cardPurchases.filter(x=>x.id!==p.dataset.purchaseDelete);saveCards();renderCards();toast('Compra excluída.')}});
 $('purchaseDate').value=today();renderCards();
-
-
 /* Limites mensais por categoria */
-let budgets=[];
-try{budgets=JSON.parse(localStorage.getItem('meuControleFin_budgets_v1')||'[]');if(!Array.isArray(budgets))budgets=[]}catch(e){budgets=[]}
+let budgets=[];try{budgets=JSON.parse(localStorage.getItem('meuControleFin_budgets_v1')||'[]');if(!Array.isArray(budgets))budgets=[]}catch(e){budgets=[]}
 const saveBudgets=()=>{try{localStorage.setItem('meuControleFin_budgets_v1',JSON.stringify(budgets))}catch(e){toast('Não foi possível salvar os limites.')}};
 function renderBudgets(){
- const m=today().slice(0,7);
- $('budgetMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
- $('budgetsList').innerHTML=budgets.map(b=>{
-  const spent=data.filter(x=>x.type==='expense'&&x.category===b.category&&x.date.slice(0,7)===m).reduce((s,x)=>s+x.amount,0);
-  const pct=b.limit>0?spent/b.limit*100:0, color=pct>=100?'#d65f5f':pct>=80?'#d49a3a':'#55b98b';
-  return `<div class="panel"><div class="row"><b>${esc(b.category)}</b><button class="del" data-budget-delete="${esc(b.category)}">Remover</button></div><div class="row" style="font-size:13px;margin-top:10px"><span class="muted">Gasto: ${money(spent)}</span><b>Limite: ${money(b.limit)}</b></div><div class="bar"><div style="width:${Math.min(100,pct)}%;background:${color}"></div></div><div class="row"><small class="muted">${pct>=100?'Limite ultrapassado':pct>=80?'Atenção: perto do limite':'Ainda dentro do limite'}</small><small><b>${Math.max(0,b.limit-spent).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</b> restantes</small></div></div>`;
- }).join('')||'<div class="panel muted">Você ainda não definiu nenhum limite.</div>';
+ const m=today().slice(0,7);$('budgetMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ $('budgetsList').innerHTML=budgets.map(b=>{const spent=data.filter(x=>x.type==='expense'&&x.category===b.category&&x.date.slice(0,7)===m).reduce((s,x)=>s+x.amount,0);const pct=b.limit>0?spent/b.limit*100:0,color=pct>=100?'#d65f5f':pct>=80?'#d49a3a':'#55b98b';return `<div class="panel"><div class="row"><b>${esc(b.category)}</b><button class="del" data-budget-delete="${esc(b.category)}">Remover</button></div><div class="row" style="font-size:13px;margin-top:10px"><span class="muted">Gasto: ${money(spent)}</span><b>Limite: ${money(b.limit)}</b></div><div class="bar"><div style="width:${Math.min(100,pct)}%;background:${color}"></div></div><div class="row"><small class="muted">${pct>=100?'Limite ultrapassado':pct>=80?'Atenção: perto do limite':'Ainda dentro do limite'}</small><small><b>${Math.max(0,b.limit-spent).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</b> restantes</small></div></div>`}).join('')||'<div class="panel muted">Você ainda não definiu nenhum limite.</div>';
 }
 $('budgetForm').addEventListener('submit',e=>{e.preventDefault();const category=$('budgetCategory').value,limit=Number($('budgetLimit').value);if(!(limit>0)){toast('Informe um limite válido.');return}const found=budgets.find(b=>b.category===category);if(found)found.limit=limit;else budgets.push({category,limit});saveBudgets();e.target.reset();renderBudgets();toast('Limite mensal salvo!')});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-budget-delete]');if(b){budgets=budgets.filter(x=>x.category!==b.dataset.budgetDelete);saveBudgets();renderBudgets();toast('Limite removido.')}});
-
-/* Contas fixas: cada mês pode ser marcado como pago uma única vez */
-let recurringBills=[];
-try{recurringBills=JSON.parse(localStorage.getItem('meuControleFin_recurring_v1')||'[]');if(!Array.isArray(recurringBills))recurringBills=[]}catch(e){recurringBills=[]}
+/* Contas fixas */
+let recurringBills=[];try{recurringBills=JSON.parse(localStorage.getItem('meuControleFin_recurring_v1')||'[]');if(!Array.isArray(recurringBills))recurringBills=[]}catch(e){recurringBills=[]}
 const saveRecurring=()=>{try{localStorage.setItem('meuControleFin_recurring_v1',JSON.stringify(recurringBills))}catch(e){toast('Não foi possível salvar as contas.')}};
-
 $('calendarPrev').addEventListener('click',()=>{const [y,m]=calendarMonth.split('-').map(Number),d=new Date(y,m-2,1);calendarMonth=monthKey(todayFromDate(d));calendarSelected=calendarMonth+'-01';renderCalendar()});
 $('calendarNext').addEventListener('click',()=>{const [y,m]=calendarMonth.split('-').map(Number),d=new Date(y,m,1);calendarMonth=monthKey(todayFromDate(d));calendarSelected=calendarMonth+'-01';renderCalendar()});
 document.addEventListener('click',e=>{const day=e.target.closest('[data-calendar-day]');if(day){calendarSelected=day.dataset.calendarDay;renderCalendar()}});
-
-function dueDateForMonth(day,month){
- const [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate();
- return `${y}-${String(m).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`;
-}
+function dueDateForMonth(day,month){const [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate();return `${y}-${String(m).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`}
 let calendarMonth=today().slice(0,7),calendarSelected=today();
 function paidInMonth(b,month){return data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===month)}
 function renderCalendar(){
- const [year,month]=calendarMonth.split('-').map(Number),first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();
- $('calendarTitle').textContent=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
- const offset=(first.getDay()+6)%7, cells=[];
- ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(d=>cells.push(`<div class="calendar-weekday">${d}</div>`));
- for(let i=0;i<offset;i++)cells.push('<div></div>');
- for(let day=1;day<=days;day++){
-  const date=dueDateForMonth(day,calendarMonth),bills=recurringBills.filter(b=>dueDateForMonth(b.due,calendarMonth)===date),allPaid=bills.length>0&&bills.every(b=>paidInMonth(b,calendarMonth));
-  const cls=[date===calendarSelected?'selected':'',bills.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');
-  cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}">${day}${bills.length?'<i class="calendar-dot"></i>':''}</button>`);
- }
- $('calendarGrid').innerHTML=cells.join('');
- renderCalendarDetails();
+ const [year,month]=calendarMonth.split('-').map(Number),first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();$('calendarTitle').textContent=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ const offset=(first.getDay()+6)%7,cells=[];['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(d=>cells.push(`<div class="calendar-weekday">${d}</div>`));for(let i=0;i<offset;i++)cells.push('<div></div>');
+ for(let day=1;day<=days;day++){const date=dueDateForMonth(day,calendarMonth),bills=recurringBills.filter(b=>dueDateForMonth(b.due,calendarMonth)===date),allPaid=bills.length>0&&bills.every(b=>paidInMonth(b,calendarMonth));const cls=[date===calendarSelected?'selected':'',bills.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}">${day}${bills.length?'<i class="calendar-dot"></i>':''}</button>`)}
+ $('calendarGrid').innerHTML=cells.join('');renderCalendarDetails();
 }
 function renderCalendarDetails(){
- const [y,m,d]=calendarSelected.split('-').map(Number),date=calendarSelected;
- $('calendarSelectedTitle').textContent=new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+ const [y,m,d]=calendarSelected.split('-').map(Number),date=calendarSelected;$('calendarSelectedTitle').textContent=new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
  const bills=recurringBills.filter(b=>dueDateForMonth(b.due,calendarMonth)===date);
- $('calendarDayDetails').innerHTML=bills.length?bills.map(b=>{
-  const paid=paidInMonth(b,calendarMonth),isCurrent=calendarMonth===today().slice(0,7);
-  return `<div class="tx"><div class="dot">📄</div><div class="txmain"><strong>${esc(b.name)}</strong><small>${esc(b.category)} · ${paid?'Paga':'Pendente'}</small></div><div class="txval">${money(b.amount)}${paid?'<small style="display:block;color:#26956a">✓ Paga</small>':isCurrent?`<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="${b.id}">Marcar paga</button>`:'<small style="display:block;color:#d49a3a">Pendente</small>'}</div></div>`;
- }).join(''):'<span class="muted">Nenhuma conta com vencimento neste dia.</span>';
+ $('calendarDayDetails').innerHTML=bills.length?bills.map(b=>{const paid=paidInMonth(b,calendarMonth),isCurrent=calendarMonth===today().slice(0,7);return `<div class="tx"><div class="dot">📄</div><div class="txmain"><strong>${esc(b.name)}</strong><small>${esc(b.category)} · ${paid?'Paga':'Pendente'}</small></div><div class="txval">${money(b.amount)}${paid?'<small style="display:block;color:#26956a">✓ Paga</small>':isCurrent?`<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="${b.id}">Marcar paga</button>`:'<small style="display:block;color:#d49a3a">Pendente</small>'}</div></div>`}).join(''):'<span class="muted">Nenhuma conta com vencimento neste dia.</span>';
 }
 function renderRecurring(){
- const m=today().slice(0,7);
- $('recurringMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
- if(!calendarMonth)calendarMonth=m;
- if(!calendarSelected||calendarSelected.slice(0,7)!==calendarMonth)calendarSelected=calendarMonth+'-01';
- renderCalendar();
- $('recurringList').innerHTML=recurringBills.map(b=>{
-  const paid=paidInMonth(b,m),due=dueDateForMonth(b.due,m);
-  return `<div class="panel"><div class="row"><b>${esc(b.name)}</b><button class="del" data-recurring-delete="${b.id}">Excluir</button></div><div class="row" style="font-size:13px;margin-top:9px"><span class="muted">${esc(b.category)} · Vence dia ${b.due}</span><b>${money(b.amount)}</b></div><div class="row" style="margin-top:12px"><small class="muted">${paid?'Pagamento registrado':'Vencimento: '+due.split('-').reverse().join('/')}</small>${paid?'<span style="color:#26956a;font-size:13px;font-weight:700">✓ Paga</span>':`<button class="btn primary" data-recurring-paid="${b.id}">Marcar como paga</button>`}</div></div>`;
- }).join('')||'<div class="panel muted">Nenhuma conta fixa cadastrada.</div>';
+ const m=today().slice(0,7);$('recurringMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});if(!calendarMonth)calendarMonth=m;if(!calendarSelected||calendarSelected.slice(0,7)!==calendarMonth)calendarSelected=calendarMonth+'-01';renderCalendar();
+ $('recurringList').innerHTML=recurringBills.map(b=>{const paid=paidInMonth(b,m),due=dueDateForMonth(b.due,m);return `<div class="panel"><div class="row"><b>${esc(b.name)}</b><button class="del" data-recurring-delete="${b.id}">Excluir</button></div><div class="row" style="font-size:13px;margin-top:9px"><span class="muted">${esc(b.category)} · Vence dia ${b.due}</span><b>${money(b.amount)}</b></div><div class="row" style="margin-top:12px"><small class="muted">${paid?'Pagamento registrado':'Vencimento: '+due.split('-').reverse().join('/')}</small>${paid?'<span style="color:#26956a;font-size:13px;font-weight:700">✓ Paga</span>':`<button class="btn primary" data-recurring-paid="${b.id}">Marcar como paga</button>`}</div></div>`}).join('')||'<div class="panel muted">Nenhuma conta fixa cadastrada.</div>';
 }
 $('recurringForm').addEventListener('submit',e=>{e.preventDefault();const amount=Number($('recurringAmount').value),due=Number($('recurringDue').value);if(!(amount>0&&due>=1&&due<=31)){toast('Confira o valor e o dia do vencimento.');return}recurringBills.push({id:String(Date.now())+Math.random(),name:$('recurringName').value.trim(),amount,category:$('recurringCategory').value,due});saveRecurring();e.target.reset();renderRecurring();toast('Conta fixa cadastrada!')});
-document.addEventListener('click',e=>{
- const del=e.target.closest('[data-recurring-delete]');
- if(del){if(!confirm('Excluir esta conta fixa? Os pagamentos já registrados serão mantidos.'))return;recurringBills=recurringBills.filter(x=>x.id!==del.dataset.recurringDelete);saveRecurring();renderRecurring();toast('Conta fixa excluída.')}
- const paid=e.target.closest('[data-recurring-paid]');
- if(paid){const b=recurringBills.find(x=>x.id===paid.dataset.recurringPaid);if(!b)return;const m=today().slice(0,7);if(data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===m)){toast('Esta conta já foi marcada como paga neste mês.');return}data.push({id:Date.now()+Math.random(),type:'expense',amount:b.amount,description:b.name,category:b.category,date:dueDateForMonth(b.due,m),recurringBillId:b.id,recurringMonth:m});save();render();renderRecurring();toast('Conta marcada como paga e lançada nas despesas!')}
-});
-
+document.addEventListener('click',e=>{const del=e.target.closest('[data-recurring-delete]');if(del){if(!confirm('Excluir esta conta fixa? Os pagamentos já registrados serão mantidos.'))return;recurringBills=recurringBills.filter(x=>x.id!==del.dataset.recurringDelete);saveRecurring();renderRecurring();toast('Conta fixa excluída.')}const paid=e.target.closest('[data-recurring-paid]');if(paid){const b=recurringBills.find(x=>x.id===paid.dataset.recurringPaid);if(!b)return;const m=today().slice(0,7);if(data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===m)){toast('Esta conta já foi marcada como paga neste mês.');return}data.push({id:Date.now()+Math.random(),type:'expense',amount:b.amount,description:b.name,category:b.category,date:dueDateForMonth(b.due,m),recurringBillId:b.id,recurringMonth:m});save();render();renderRecurring();toast('Conta marcada como paga e lançada nas despesas!')}});
+/* Metas financeiras: dados isolados dos lançamentos e cartões */
+let goals=[],goalDeposits=[];
+try{goals=JSON.parse(localStorage.getItem('meuControleFin_goals_v1')||'[]');if(!Array.isArray(goals))goals=[]}catch(e){goals=[]}
+try{goalDeposits=JSON.parse(localStorage.getItem('meuControleFin_goalDeposits_v1')||'[]');if(!Array.isArray(goalDeposits))goalDeposits=[]}catch(e){goalDeposits=[]}
+const saveGoals=()=>{try{localStorage.setItem('meuControleFin_goals_v1',JSON.stringify(goals));localStorage.setItem('meuControleFin_goalDeposits_v1',JSON.stringify(goalDeposits))}catch(e){toast('Não foi possível salvar as metas neste aparelho.')}};
+const goalSaved=id=>goalDeposits.filter(d=>d.goalId===id).reduce((sum,d)=>sum+d.amount,0);
+function renderGoals(){
+ $('goalsCount').textContent=goals.length+' meta(s)';
+ $('goalsList').innerHTML=goals.map(g=>{const saved=goalSaved(g.id),pct=g.target>0?saved/g.target*100:0,remaining=Math.max(0,g.target-saved),complete=saved>=g.target;return `<article class="goal-card"><div class="row"><b>🏁 ${esc(g.name)}</b><button class="del" data-goal-delete="${g.id}">Excluir</button></div><div class="row" style="margin-top:12px"><span class="goal-meta">Guardado</span><b>${money(saved)}</b></div><div class="bar"><div style="width:${Math.min(100,pct)}%;background:${complete?'#55b98b':'#34765a'}"></div></div><div class="row"><small class="goal-meta">${Math.min(100,pct).toFixed(0)}% concluído</small><small class="goal-meta">${complete?'Meta alcançada!':'Faltam '+money(remaining)}</small></div>${g.deadline?`<div class="goal-meta" style="margin-top:8px">Prazo: ${g.deadline.split('-').reverse().join('/')}</div>`:''}<form class="goal-deposit-form" data-goal-form="${g.id}" style="margin-top:14px"><label>Adicionar depósito (R$)<input class="field" name="deposit" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Valor do depósito" required></label><label>Descrição (opcional)<input class="field" name="note" maxlength="45" placeholder="Ex.: Economia do mês"></label><button class="btn primary wide" type="submit">＋ Registrar depósito</button></form></article>`}).join('')||'<div class="panel muted">Você ainda não criou uma meta. Comece com um objetivo, como uma viagem ou uma reserva.</div>';
+ $('goalDeposits').innerHTML=goalDeposits.slice().sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).slice(0,12).map(d=>{const g=goals.find(x=>x.id===d.goalId);return `<div class="tx"><div class="dot">💰</div><div class="txmain"><strong>${esc(g?.name||'Meta removida')}</strong><small>${esc(d.note||'Depósito')} · ${d.date.split('-').reverse().join('/')}</small></div><div class="txval" style="color:#26956a">+${money(d.amount)}<button class="del" data-goal-deposit-delete="${d.id}">Desfazer</button></div></div>`}).join('')||'<div class="muted">Seus depósitos aparecerão aqui.</div>';
+}
+$('goalForm').addEventListener('submit',e=>{e.preventDefault();const target=Number($('goalTarget').value),name=$('goalName').value.trim(),deadline=$('goalDeadline').value;if(!name||!(target>0)){toast('Informe um nome e um valor válido.');return}goals.push({id:String(Date.now())+Math.random(),name,target,deadline});saveGoals();e.target.reset();renderGoals();toast('Meta criada com sucesso!')});
+document.addEventListener('submit',e=>{const form=e.target.closest('.goal-deposit-form');if(!form)return;e.preventDefault();const amount=Number(form.elements.deposit.value),goalId=form.dataset.goalForm;if(!(amount>0)||!goals.some(g=>g.id===goalId)){toast('Informe um depósito válido.');return}goalDeposits.push({id:String(Date.now())+Math.random(),goalId,amount,note:form.elements.note.value.trim(),date:today()});saveGoals();renderGoals();toast('Depósito registrado!')});
+document.addEventListener('click',e=>{const delGoal=e.target.closest('[data-goal-delete]');if(delGoal){if(!confirm('Excluir esta meta e o histórico de depósitos dela?'))return;goals=goals.filter(g=>g.id!==delGoal.dataset.goalDelete);goalDeposits=goalDeposits.filter(d=>d.goalId!==delGoal.dataset.goalDelete);saveGoals();renderGoals();toast('Meta excluída.')}const delDeposit=e.target.closest('[data-goal-deposit-delete]');if(delDeposit){if(!confirm('Desfazer este depósito?'))return;goalDeposits=goalDeposits.filter(d=>d.id!==delDeposit.dataset.goalDepositDelete);saveGoals();renderGoals();toast('Depósito desfeito.') }});
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
