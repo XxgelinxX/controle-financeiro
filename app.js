@@ -318,6 +318,25 @@ function renderCalendarDetails(){
  const [y,m,d]=calendarSelected.split('-').map(Number),date=calendarSelected;$('calendarSelectedTitle').textContent=new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
  const events=filteredCalendarEvents(date),fmt=v=>hidden?'••••••':money(v),statusLabel={pending:'Pendente',paid:'Pago',done:'Registrado'};
  $('calendarDayDetails').innerHTML=events.length?events.map(event=>`<div class="tx"><div class="dot">${event.icon}</div><div class="txmain"><strong>${esc(event.title)}</strong><small>${esc(event.subtitle)} · ${statusLabel[event.status]||'Evento'}</small></div><div class="txval">${event.amount===null?'':fmt(event.amount)}${event.kind==='income'?'<small style="display:block;color:#26956a">Entrada</small>':event.kind==='expense'||event.kind==='debtPayment'?'<small style="display:block;color:#c75e5e">Saída</small>':''}${event.action==='pay-recurring'?'<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="'+esc(event.sourceId)+'">Marcar paga</button>':''}</div></div>`).join(''):'<span class="muted">Nenhum evento financeiro nesta data.</span>';
+
+ renderCalendarFinancialSummary();
+}
+function renderCalendarFinancialSummary(){
+ const host=$('calendarFinancialSummary');if(!host)return;
+ const month=calendarMonth,[year,monthNum]=month.split('-').map(Number),days=new Date(year,monthNum,0).getDate();
+ const sumEvents=list=>{
+  const income=list.filter(x=>x.kind==='income').reduce((s,x)=>s+Number(x.amount||0),0);
+  const outKinds=['expense','recurring','invoice','commitment','debt','debtPayment'];
+  const outflow=list.filter(x=>outKinds.includes(x.kind)).reduce((s,x)=>s+Number(x.amount||0),0);
+  const pending=list.filter(x=>outKinds.includes(x.kind)&&x.status==='pending').reduce((s,x)=>s+Number(x.amount||0),0);
+  return {income,outflow,pending,balance:income-outflow};
+ };
+ const daily=sumEvents(filteredCalendarEvents(calendarSelected)),monthEvents=[];
+ for(let day=1;day<=days;day++)monthEvents.push(...filteredCalendarEvents(dueDateForMonth(day,month)));
+ const monthly=sumEvents(monthEvents),fmt=v=>hidden?'••••••':money(v);
+ const card=(label,value,kind='')=>'<div class="calendar-summary-metric"><small>'+label+'</small><b class="'+kind+'">'+fmt(value)+'</b></div>';
+ const monthLabel=new Date(year,monthNum-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ host.innerHTML='<div class="calendar-summary-section"><div class="row"><b>Dia selecionado</b><small class="muted">'+calendarSelected.split('-').reverse().join('/')+'</small></div><div class="calendar-summary-grid">'+card('Entradas',daily.income,'positive')+card('Saídas',daily.outflow,'negative')+card('Pendente',daily.pending,'warning')+'</div></div><div class="calendar-summary-section"><div class="row"><b>Consolidado do mês</b><small class="muted">'+monthLabel+'</small></div><div class="calendar-summary-grid">'+card('Entradas',monthly.income,'positive')+card('Saídas',monthly.outflow,'negative')+card('Pendente',monthly.pending,'warning')+card('Saldo previsto',monthly.balance,monthly.balance>=0?'positive':'negative')+'</div></div><small class="muted calendar-summary-note">Os totais acompanham os filtros ativos. Transferências e depósitos em metas não entram como receitas ou despesas.</small>';
 }
 function renderRecurring(){
  const m=today().slice(0,7);$('recurringMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});if(!calendarMonth)calendarMonth=m;if(!calendarSelected||calendarSelected.slice(0,7)!==calendarMonth)calendarSelected=calendarMonth+'-01';renderCalendar();
