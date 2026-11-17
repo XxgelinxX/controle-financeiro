@@ -1,4 +1,6 @@
 (()=> {
+window.addEventListener('error',event=>{const el=document.getElementById('toast');if(el)el.textContent='O app encontrou uma falha ao abrir. Seus dados continuam salvos. Detalhe: '+(event.message||'erro de execução');console.error('Meu Controle Financeiro:',event.error||event.message)});
+window.addEventListener('unhandledrejection',event=>{const el=document.getElementById('toast');if(el)el.textContent='O app encontrou uma falha. Seus dados continuam salvos.';console.error('Meu Controle Financeiro:',event.reason)});
 const $=id=>document.getElementById(id), money=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 let data=[];try{data=JSON.parse(localStorage.getItem('meuControleFin_v1')||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
