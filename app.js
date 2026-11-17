@@ -59,5 +59,47 @@ $('purchaseForm').addEventListener('submit',e=>{e.preventDefault();let amount=Nu
 document.addEventListener('click',e=>{let c=e.target.closest('[data-card-delete]');if(c){if(!confirm('Excluir este cartão e as compras vinculadas?'))return;cards=cards.filter(x=>x.id!==c.dataset.cardDelete);cardPurchases=cardPurchases.filter(x=>x.cardId!==c.dataset.cardDelete);saveCards();renderCards();toast('Cartão excluído.')}let p=e.target.closest('[data-purchase-delete]');if(p){cardPurchases=cardPurchases.filter(x=>x.id!==p.dataset.purchaseDelete);saveCards();renderCards();toast('Compra excluída.')}});
 $('purchaseDate').value=today();renderCards();
 
+
+/* Limites mensais por categoria */
+let budgets=[];
+try{budgets=JSON.parse(localStorage.getItem('meuControleFin_budgets_v1')||'[]');if(!Array.isArray(budgets))budgets=[]}catch(e){budgets=[]}
+const saveBudgets=()=>{try{localStorage.setItem('meuControleFin_budgets_v1',JSON.stringify(budgets))}catch(e){toast('Não foi possível salvar os limites.')}};
+function renderBudgets(){
+ const m=today().slice(0,7);
+ $('budgetMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ $('budgetsList').innerHTML=budgets.map(b=>{
+  const spent=data.filter(x=>x.type==='expense'&&x.category===b.category&&x.date.slice(0,7)===m).reduce((s,x)=>s+x.amount,0);
+  const pct=b.limit>0?spent/b.limit*100:0, color=pct>=100?'#d65f5f':pct>=80?'#d49a3a':'#55b98b';
+  return `<div class="panel"><div class="row"><b>${esc(b.category)}</b><button class="del" data-budget-delete="${esc(b.category)}">Remover</button></div><div class="row" style="font-size:13px;margin-top:10px"><span class="muted">Gasto: ${money(spent)}</span><b>Limite: ${money(b.limit)}</b></div><div class="bar"><div style="width:${Math.min(100,pct)}%;background:${color}"></div></div><div class="row"><small class="muted">${pct>=100?'Limite ultrapassado':pct>=80?'Atenção: perto do limite':'Ainda dentro do limite'}</small><small><b>${Math.max(0,b.limit-spent).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</b> restantes</small></div></div>`;
+ }).join('')||'<div class="panel muted">Você ainda não definiu nenhum limite.</div>';
+}
+$('budgetForm').addEventListener('submit',e=>{e.preventDefault();const category=$('budgetCategory').value,limit=Number($('budgetLimit').value);if(!(limit>0)){toast('Informe um limite válido.');return}const found=budgets.find(b=>b.category===category);if(found)found.limit=limit;else budgets.push({category,limit});saveBudgets();e.target.reset();renderBudgets();toast('Limite mensal salvo!')});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-budget-delete]');if(b){budgets=budgets.filter(x=>x.category!==b.dataset.budgetDelete);saveBudgets();renderBudgets();toast('Limite removido.')}});
+
+/* Contas fixas: cada mês pode ser marcado como pago uma única vez */
+let recurringBills=[];
+try{recurringBills=JSON.parse(localStorage.getItem('meuControleFin_recurring_v1')||'[]');if(!Array.isArray(recurringBills))recurringBills=[]}catch(e){recurringBills=[]}
+const saveRecurring=()=>{try{localStorage.setItem('meuControleFin_recurring_v1',JSON.stringify(recurringBills))}catch(e){toast('Não foi possível salvar as contas.')}};
+function dueDateForMonth(day,month){
+ const [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate();
+ return `${y}-${String(m).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`;
+}
+function renderRecurring(){
+ const m=today().slice(0,7);
+ $('recurringMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+ $('recurringList').innerHTML=recurringBills.map(b=>{
+  const paid=data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===m);
+  const due=dueDateForMonth(b.due,m);
+  return `<div class="panel"><div class="row"><b>${esc(b.name)}</b><button class="del" data-recurring-delete="${b.id}">Excluir</button></div><div class="row" style="font-size:13px;margin-top:9px"><span class="muted">${esc(b.category)} · Vence dia ${b.due}</span><b>${money(b.amount)}</b></div><div class="row" style="margin-top:12px"><small class="muted">${paid?'Pagamento registrado':'Vencimento: '+due.split('-').reverse().join('/')}</small>${paid?'<span style="color:#26956a;font-size:13px;font-weight:700">✓ Paga</span>':`<button class="btn primary" data-recurring-paid="${b.id}">Marcar como paga</button>`}</div></div>`;
+ }).join('')||'<div class="panel muted">Nenhuma conta fixa cadastrada.</div>';
+}
+$('recurringForm').addEventListener('submit',e=>{e.preventDefault();const amount=Number($('recurringAmount').value),due=Number($('recurringDue').value);if(!(amount>0&&due>=1&&due<=31)){toast('Confira o valor e o dia do vencimento.');return}recurringBills.push({id:String(Date.now())+Math.random(),name:$('recurringName').value.trim(),amount,category:$('recurringCategory').value,due});saveRecurring();e.target.reset();renderRecurring();toast('Conta fixa cadastrada!')});
+document.addEventListener('click',e=>{
+ const del=e.target.closest('[data-recurring-delete]');
+ if(del){if(!confirm('Excluir esta conta fixa? Os pagamentos já registrados serão mantidos.'))return;recurringBills=recurringBills.filter(x=>x.id!==del.dataset.recurringDelete);saveRecurring();renderRecurring();toast('Conta fixa excluída.')}
+ const paid=e.target.closest('[data-recurring-paid]');
+ if(paid){const b=recurringBills.find(x=>x.id===paid.dataset.recurringPaid);if(!b)return;const m=today().slice(0,7);if(data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===m)){toast('Esta conta já foi marcada como paga neste mês.');return}data.push({id:Date.now()+Math.random(),type:'expense',amount:b.amount,description:b.name,category:b.category,date:dueDateForMonth(b.due,m),recurringBillId:b.id,recurringMonth:m});save();render();renderRecurring();toast('Conta marcada como paga e lançada nas despesas!')}
+});
+
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
