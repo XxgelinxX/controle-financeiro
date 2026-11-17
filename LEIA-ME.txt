@@ -1,0 +1,13 @@
+MEU CONTROLE FINANCEIRO — COMO PUBLICAR
+
+1. Extraia este ZIP.
+2. Publique os arquivos em um serviço de hospedagem estática com HTTPS (por exemplo, Netlify ou GitHub Pages).
+3. Abra o endereço HTTPS no celular.
+4. Android/Chrome: menu ⋮ > Instalar app ou Adicionar à tela inicial.
+   iPhone/Safari: botão Compartilhar > Adicionar à Tela de Início.
+
+IMPORTANTE
+- O app funciona sem conta e salva os lançamentos no armazenamento local do navegador/aparelho.
+- Os dados não são sincronizados entre aparelhos e podem ser perdidos se os dados do navegador forem apagados.
+- Exporte CSV periodicamente como cópia de segurança.
+- Para instalar como PWA, é necessário hospedar em HTTPS (ou testar em localhost).
