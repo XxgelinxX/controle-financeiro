@@ -135,20 +135,20 @@ document.addEventListener('click',e=>{const delGoal=e.target.closest('[data-goal
 
 // Edição visual: formulário único, sem prompts nem necessidade de copiar IDs.
 const editStyle=document.createElement('style');
-editStyle.textContent=\`
+editStyle.textContent=`
 .edit-overlay{position:fixed;inset:0;background:rgba(8,24,16,.62);display:none;align-items:flex-end;justify-content:center;padding:14px;z-index:50}
 .edit-overlay.open{display:flex}
 .edit-dialog{width:min(100%,520px);max-height:min(88vh,760px);overflow:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 20px 60px #0004}
 .edit-dialog h3{font-size:20px;margin:0 0 5px}.edit-dialog .muted{font-size:13px;margin:0 0 16px}
 .edit-dialog .edit-actions{display:flex;gap:9px;margin-top:18px}.edit-dialog .edit-actions button{flex:1}
 @media(min-width:600px){.edit-overlay{align-items:center}.edit-dialog{max-height:85vh}}
-\`;
+`;
 document.head.appendChild(editStyle);
-document.body.insertAdjacentHTML('beforeend',\`<div class="edit-overlay" id="editOverlay" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="edit-dialog"><div class="row"><div><h3 id="editTitle">Editar registro</h3><p class="muted" id="editSubtitle">Altere os campos e salve.</p></div><button type="button" class="btn soft" id="editClose" aria-label="Fechar">✕</button></div><form id="editForm"><div id="editFields"></div><div class="edit-actions"><button type="button" class="btn soft" id="editCancel">Cancelar</button><button type="submit" class="btn primary">Salvar alterações</button></div></form></div></div>\`);
+document.body.insertAdjacentHTML('beforeend',`<div class="edit-overlay" id="editOverlay" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="edit-dialog"><div class="row"><div><h3 id="editTitle">Editar registro</h3><p class="muted" id="editSubtitle">Altere os campos e salve.</p></div><button type="button" class="btn soft" id="editClose" aria-label="Fechar">✕</button></div><form id="editForm"><div id="editFields"></div><div class="edit-actions"><button type="button" class="btn soft" id="editCancel">Cancelar</button><button type="submit" class="btn primary">Salvar alterações</button></div></form></div></div>`);
 const editOverlay=$('editOverlay'),editForm=$('editForm'),editFields=$('editFields');
 let activeEdit=null;
-const editInput=(name,label,value,type='text',attrs='')=>\`<label>\${label}<input class="field" name="\${name}" type="\${type}" value="\${esc(value??'')}" \${attrs} required></label>\`;
-const editSelect=(name,label,value,options)=>\`<label>\${label}<select class="field" name="\${name}" required>\${options.map(o=>\`<option value="\${esc(o.value)}" \${String(o.value)===String(value)?'selected':''}>\${esc(o.label)}</option>\`).join('')}</select></label>\`;
+const editInput=(name,label,value,type='text',attrs='')=>`<label>${label}<input class="field" name="${name}" type="${type}" value="${esc(value??'')}" ${attrs} required></label>`;
+const editSelect=(name,label,value,options)=>`<label>${label}<select class="field" name="${name}" required>${options.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(value)?'selected':''}>${esc(o.label)}</option>`).join('')}</select></label>`;
 function openEditor(type,id){
  let item,fields='',title='';
  const categories=['Moradia','Alimentação','Transporte','Saúde','Lazer','Compras','Contas','Cartão de crédito','Outros'];
@@ -175,13 +175,13 @@ editForm.addEventListener('submit',e=>{
  e.preventDefault();if(!activeEdit)return;
  const values=Object.fromEntries(new FormData(editForm).entries()),num=k=>Number(values[k]),validAmount=k=>Number.isFinite(num(k))&&num(k)>0,validDay=k=>Number.isInteger(num(k))&&num(k)>=1&&num(k)<=31;
  const {type,id}=activeEdit;let item;
- if(type==='tx'){item=data.find(x=>String(x.id)===id);if(!values.description.trim()||!values.category.trim()||!validAmount('amount')||!/^\\d{4}-\\d{2}-\\d{2}$/.test(values.date)){toast('Confira descrição, valor, categoria e data.');return}Object.assign(item,{description:values.description.trim(),amount:num('amount'),category:values.category.trim(),date:values.date});save();render();}
+ if(type==='tx'){item=data.find(x=>String(x.id)===id);if(!values.description.trim()||!values.category.trim()||!validAmount('amount')||!/^\d{4}-\d{2}-\d{2}$/.test(values.date)){toast('Confira descrição, valor, categoria e data.');return}Object.assign(item,{description:values.description.trim(),amount:num('amount'),category:values.category.trim(),date:values.date});save();render();}
  if(type==='card'){item=cards.find(x=>x.id===id);if(!values.name.trim()||!validAmount('limit')||!validDay('closing')||!validDay('due')){toast('Confira nome, limite e dias do cartão.');return}Object.assign(item,{name:values.name.trim(),bank:values.bank.trim(),limit:num('limit'),closing:num('closing'),due:num('due')});saveCards();renderCards();}
- if(type==='purchase'){item=cardPurchases.find(x=>x.id===id);if(!cards.some(c=>c.id===values.cardId)||!values.description.trim()||!validAmount('amount')||!Number.isInteger(num('installments'))||num('installments')<1||num('installments')>24||!/^\\d{4}-\\d{2}-\\d{2}$/.test(values.date)){toast('Confira os dados da compra.');return}Object.assign(item,{cardId:values.cardId,description:values.description.trim(),amount:num('amount'),installments:num('installments'),date:values.date});saveCards();renderCards();}
+ if(type==='purchase'){item=cardPurchases.find(x=>x.id===id);if(!cards.some(c=>c.id===values.cardId)||!values.description.trim()||!validAmount('amount')||!Number.isInteger(num('installments'))||num('installments')<1||num('installments')>24||!/^\d{4}-\d{2}-\d{2}$/.test(values.date)){toast('Confira os dados da compra.');return}Object.assign(item,{cardId:values.cardId,description:values.description.trim(),amount:num('amount'),installments:num('installments'),date:values.date});saveCards();renderCards();}
  if(type==='budget'){item=budgets.find(x=>x.category===id);const category=values.category.trim();if(!category||!validAmount('limit')){toast('Informe uma categoria e um limite válido.');return}if(budgets.some(x=>x!==item&&x.category.toLowerCase()===category.toLowerCase())){toast('Já existe um limite para essa categoria.');return}Object.assign(item,{category,limit:num('limit')});saveBudgets();renderBudgets();}
  if(type==='recurring'){item=recurringBills.find(x=>x.id===id);if(!values.name.trim()||!validAmount('amount')||!validDay('due')){toast('Confira nome, valor e vencimento.');return}Object.assign(item,{name:values.name.trim(),amount:num('amount'),category:values.category,due:num('due')});saveRecurring();renderRecurring();}
- if(type==='goal'){item=goals.find(x=>x.id===id);if(!values.name.trim()||!validAmount('target')||(values.deadline&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(values.deadline))){toast('Confira nome, valor e prazo da meta.');return}Object.assign(item,{name:values.name.trim(),target:num('target'),deadline:values.deadline});saveGoals();renderGoals();}
- if(type==='deposit'){item=goalDeposits.find(x=>x.id===id);if(!goals.some(g=>g.id===values.goalId)||!validAmount('amount')||!values.date||!/^\\d{4}-\\d{2}-\\d{2}$/.test(values.date)){toast('Confira meta, valor e data do depósito.');return}Object.assign(item,{goalId:values.goalId,amount:num('amount'),note:values.note.trim(),date:values.date});saveGoals();renderGoals();}
+ if(type==='goal'){item=goals.find(x=>x.id===id);if(!values.name.trim()||!validAmount('target')||(values.deadline&&!/^\d{4}-\d{2}-\d{2}$/.test(values.deadline))){toast('Confira nome, valor e prazo da meta.');return}Object.assign(item,{name:values.name.trim(),target:num('target'),deadline:values.deadline});saveGoals();renderGoals();}
+ if(type==='deposit'){item=goalDeposits.find(x=>x.id===id);if(!goals.some(g=>g.id===values.goalId)||!validAmount('amount')||!values.date||!/^\d{4}-\d{2}-\d{2}$/.test(values.date)){toast('Confira meta, valor e data do depósito.');return}Object.assign(item,{goalId:values.goalId,amount:num('amount'),note:values.note.trim(),date:values.date});saveGoals();renderGoals();}
  closeEditor();toast('Alterações salvas com sucesso!');
 });
 
