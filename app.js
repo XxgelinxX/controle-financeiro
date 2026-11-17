@@ -263,16 +263,43 @@ document.addEventListener('click',e=>{const day=e.target.closest('[data-calendar
 function dueDateForMonth(day,month){const [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate();return `${y}-${String(m).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`}
 let calendarMonth=today().slice(0,7),calendarSelected=today();
 function paidInMonth(b,month){return data.some(x=>x.recurringBillId===b.id&&x.recurringMonth===month)}
+function calendarEventsForDate(date){
+ const month=date.slice(0,7),events=[];
+ const add=(event)=>{if(event.date===date)events.push(event)};
+ recurringBills.forEach(b=>{const due=dueDateForMonth(b.due,month),paid=paidInMonth(b,month);add({id:'recurring-'+b.id+'-'+month,sourceId:b.id,kind:'recurring',date:due,title:b.name,subtitle:b.category||'Conta fixa',amount:Number(b.amount||0),status:paid?'paid':'pending',icon:'📄',action:!paid&&month===today().slice(0,7)?'pay-recurring':null})});
+ data.forEach(x=>{
+  if(!x.date||x.date!==date||x.recurringBillId||x.cardInvoicePaymentId)return;
+  const income=x.type==='income';
+  add({id:'transaction-'+x.id,sourceId:x.id,kind:income?'income':'expense',date:x.date,title:x.description|| (income?'Receita':'Despesa'),subtitle:x.category||'Lançamento',amount:Number(x.amount||0),status:'done',icon:income?'💰':'🛒'});
+ });
+ cards.forEach(card=>{
+  const record=invoiceRecord(card.id,month),amount=invoiceAmount(card.id,month);
+  if(amount<=0&&!record)return;
+  add({id:'invoice-'+card.id+'-'+month,sourceId:card.id,kind:'invoice',date:dueDateForMonth(card.due,month),title:'Fatura · '+card.name,subtitle:'Cartão de crédito',amount,status:record?.paidAt?'paid':'pending',icon:'💳'});
+ });
+ commitments.filter(x=>x.status!=='cancelled').forEach(x=>add({id:'commitment-'+x.id,sourceId:x.id,kind:'commitment',date:x.date,title:x.title,subtitle:'Compromisso · '+(x.category||'Outros'),amount:Number(x.amount||0),status:x.status==='paid'?'paid':'pending',icon:'📌'}));
+ debts.forEach(d=>{
+  if(!d.dueDate)return;
+  const remaining=debtRemaining(d);
+  if(remaining<=0)return;
+  add({id:'debt-'+d.id,sourceId:d.id,kind:'debt',date:d.dueDate,title:'Vencimento · '+d.name,subtitle:d.creditor||'Dívida',amount:remaining,status:'pending',icon:'🧾'});
+ });
+ debtPayments.forEach(p=>add({id:'debt-payment-'+p.id,sourceId:p.id,kind:'debtPayment',date:p.date,title:'Pagamento · '+(debts.find(d=>d.id===p.debtId)?.name||'Dívida'),subtitle:p.note||'Pagamento de dívida',amount:Number(p.amount||0),status:'done',icon:'💸'}));
+ goals.filter(g=>g.deadline).forEach(g=>add({id:'goal-deadline-'+g.id,sourceId:g.id,kind:'goal',date:g.deadline,title:'Prazo da meta · '+g.name,subtitle:'Meta financeira',amount:null,status:goalSaved(g.id)>=Number(g.target||0)?'done':'pending',icon:'🏁'}));
+ goalDeposits.forEach(d=>add({id:'goal-deposit-'+d.id,sourceId:d.id,kind:'goalDeposit',date:d.date,title:'Depósito · '+(goals.find(g=>g.id===d.goalId)?.name||'Meta'),subtitle:d.note||'Depósito em meta',amount:Number(d.amount||0),status:'done',icon:'🐷'}));
+ transfers.forEach(t=>add({id:'transfer-'+t.id,sourceId:t.id,kind:'transfer',date:t.date,title:'Transferência entre contas',subtitle:t.note||'Movimentação interna',amount:Number(t.amount||0),status:'done',icon:'⇄'}));
+ return events.sort((a,b)=>({pending:0,done:1,paid:2}[a.status]-({pending:0,done:1,paid:2}[b.status])||a.title.localeCompare(b.title,'pt-BR'));
+}
 function renderCalendar(){
  const [year,month]=calendarMonth.split('-').map(Number),first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();$('calendarTitle').textContent=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
  const offset=(first.getDay()+6)%7,cells=[];['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(d=>cells.push(`<div class="calendar-weekday">${d}</div>`));for(let i=0;i<offset;i++)cells.push('<div></div>');
- for(let day=1;day<=days;day++){const date=dueDateForMonth(day,calendarMonth),bills=recurringBills.filter(b=>dueDateForMonth(b.due,calendarMonth)===date),allPaid=bills.length>0&&bills.every(b=>paidInMonth(b,calendarMonth));const cls=[date===calendarSelected?'selected':'',bills.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}">${day}${bills.length?'<i class="calendar-dot"></i>':''}</button>`)}
+ for(let day=1;day<=days;day++){const date=dueDateForMonth(day,calendarMonth),events=calendarEventsForDate(date),allPaid=events.length>0&&events.every(x=>x.status==='paid'||x.status==='done'),cls=[date===calendarSelected?'selected':'',events.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}" aria-label="${day}, ${events.length} evento(s)">${day}${events.length?'<i class="calendar-dot"></i>':''}</button>`)}
  $('calendarGrid').innerHTML=cells.join('');renderCalendarDetails();
 }
 function renderCalendarDetails(){
  const [y,m,d]=calendarSelected.split('-').map(Number),date=calendarSelected;$('calendarSelectedTitle').textContent=new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
- const bills=recurringBills.filter(b=>dueDateForMonth(b.due,calendarMonth)===date);
- $('calendarDayDetails').innerHTML=bills.length?bills.map(b=>{const paid=paidInMonth(b,calendarMonth),isCurrent=calendarMonth===today().slice(0,7);return `<div class="tx"><div class="dot">📄</div><div class="txmain"><strong>${esc(b.name)}</strong><small>${esc(b.category)} · ${paid?'Paga':'Pendente'}</small></div><div class="txval">${money(b.amount)}${paid?'<small style="display:block;color:#26956a">✓ Paga</small>':isCurrent?`<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="${b.id}">Marcar paga</button>`:'<small style="display:block;color:#d49a3a">Pendente</small>'}</div></div>`}).join(''):'<span class="muted">Nenhuma conta com vencimento neste dia.</span>';
+ const events=calendarEventsForDate(date),fmt=v=>hidden?'••••••':money(v),statusLabel={pending:'Pendente',paid:'Pago',done:'Registrado'};
+ $('calendarDayDetails').innerHTML=events.length?events.map(event=>`<div class="tx"><div class="dot">${event.icon}</div><div class="txmain"><strong>${esc(event.title)}</strong><small>${esc(event.subtitle)} · ${statusLabel[event.status]||'Evento'}</small></div><div class="txval">${event.amount===null?'':fmt(event.amount)}${event.kind==='income'?'<small style="display:block;color:#26956a">Entrada</small>':event.kind==='expense'||event.kind==='debtPayment'?'<small style="display:block;color:#c75e5e">Saída</small>':''}${event.action==='pay-recurring'?'<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="'+esc(event.sourceId)+'">Marcar paga</button>':''}</div></div>`).join(''):'<span class="muted">Nenhum evento financeiro nesta data.</span>';
 }
 function renderRecurring(){
  const m=today().slice(0,7);$('recurringMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});if(!calendarMonth)calendarMonth=m;if(!calendarSelected||calendarSelected.slice(0,7)!==calendarMonth)calendarSelected=calendarMonth+'-01';renderCalendar();
