@@ -374,6 +374,85 @@ button:not(.del),.btn,.theme-toggle{min-height:44px}
  button:hover,.btn:hover{filter:none}
 }
 
+
+/* Visual 2.0 — etapa 1/6: sistema visual compartilhado das áreas financeiras */
+:root{
+ --ui-radius:18px;--ui-radius-small:13px;--ui-space:15px;
+ --ui-shadow:0 6px 20px rgba(19,59,44,.055);
+ --ui-shadow-dark:0 6px 20px rgba(0,0,0,.16);
+}
+#budgets,#assets,#investments,#commitments,#debts,#accounts,#cards,#reports{
+ color:var(--ink);
+}
+#budgets>h2,#assets>h2,#investments>h2,#commitments>h2,#debts>h2,#accounts>h2,#cards>h2,#reports>h2{
+ margin:8px 2px 6px;font-size:clamp(20px,5.5vw,23px);line-height:1.2;
+}
+#budgets>p.muted,#assets>p.muted,#investments>p.muted,#commitments>p.muted,#debts>p.muted,#accounts>p.muted,#cards>p.muted,#reports>p.muted{
+ margin:0 2px 17px;font-size:13px;line-height:1.55;max-width:58ch;
+}
+#budgets>.panel,#assets>.panel,#investments>.panel,#commitments>.panel,#debts>.panel,#accounts>.panel,#cards>.panel,#reports>.panel{
+ border:1px solid var(--line);border-radius:var(--ui-radius);box-shadow:var(--ui-shadow);
+ padding:17px;margin-bottom:13px;
+}
+#budgets .grid>.panel,#assets .grid>.panel,#investments .grid>.panel,#commitments .grid>.panel,#debts .grid>.panel,#reports .grid>.panel{
+ min-width:0;min-height:94px;justify-content:center;
+}
+#budgets .stat,#assets .stat,#investments .stat,#commitments .stat,#debts .stat,#accounts .stat,#reports .stat{
+ margin-top:7px;font-size:clamp(18px,5vw,23px);font-weight:800;line-height:1.2;
+ overflow-wrap:anywhere;font-variant-numeric:tabular-nums;
+}
+#budgets .panel>b,#assets .panel>b,#investments .panel>b,#commitments .panel>b,#debts .panel>b,#accounts .panel>b,#cards .panel>b,#reports .panel>b,
+#budgets .panel .row>b,#assets .panel .row>b,#investments .panel .row>b,#commitments .panel .row>b,#debts .panel .row>b,#accounts .panel .row>b,#cards .panel .row>b,#reports .panel .row>b{
+ font-size:14px;font-weight:800;letter-spacing:-.02em;
+}
+#budgets form,#assets form,#investments form,#commitments form,#debts form,#accounts form,#cards form{margin-top:14px}
+#budgets form .btn,#assets form .btn,#investments form .btn,#commitments form .btn,#debts form .btn,#accounts form .btn,#cards form .btn{
+ margin-top:3px;
+}
+#budgets .goal-card,#assets .goal-card,#investments .goal-card,#commitments .goal-card,#debts .goal-card,
+#accounts .tx,#cards .tx{
+ border:1px solid var(--line);border-radius:15px;background:var(--surface);
+}
+#budgets .goal-card,#assets .goal-card,#investments .goal-card,#commitments .goal-card,#debts .goal-card{
+ padding:15px;margin:0 0 10px;box-shadow:none;
+}
+#accounts .tx,#cards .tx{padding:13px 2px}
+#budgets .goal-meta,#assets .goal-meta,#investments .goal-meta,#commitments .goal-meta,#debts .goal-meta{
+ line-height:1.5;
+}
+#budgets .bar,#assets .bar,#investments .bar,#commitments .bar,#debts .bar{
+ height:9px;border-radius:20px;background:var(--brand-100);
+}
+#budgets .field,#assets .field,#investments .field,#commitments .field,#debts .field,#accounts .field,#cards .field{
+ border-radius:var(--ui-radius-small);
+}
+#budgets .del,#assets .del,#investments .del,#commitments .del,#debts .del,#accounts .del,#cards .del{
+ min-height:34px;padding:7px 10px;border-radius:10px;
+}
+#budgets .row,#assets .row,#investments .row,#commitments .row,#debts .row,#accounts .row,#cards .row{
+ min-width:0;
+}
+body[data-theme="dark"] #budgets>.panel,body[data-theme="dark"] #assets>.panel,
+body[data-theme="dark"] #investments>.panel,body[data-theme="dark"] #commitments>.panel,
+body[data-theme="dark"] #debts>.panel,body[data-theme="dark"] #accounts>.panel,
+body[data-theme="dark"] #cards>.panel,body[data-theme="dark"] #reports>.panel{
+ box-shadow:var(--ui-shadow-dark);
+}
+body[data-theme="dark"] #budgets .goal-card,body[data-theme="dark"] #assets .goal-card,
+body[data-theme="dark"] #investments .goal-card,body[data-theme="dark"] #commitments .goal-card,
+body[data-theme="dark"] #debts .goal-card,body[data-theme="dark"] #accounts .tx,
+body[data-theme="dark"] #cards .tx{
+ background:var(--surface);border-color:var(--line);
+}
+body[data-theme="dark"] #budgets .bar,body[data-theme="dark"] #assets .bar,
+body[data-theme="dark"] #investments .bar,body[data-theme="dark"] #commitments .bar,
+body[data-theme="dark"] #debts .bar{background:var(--brand-100)}
+@media(max-width:380px){
+ #budgets>.panel,#assets>.panel,#investments>.panel,#commitments>.panel,
+ #debts>.panel,#accounts>.panel,#cards>.panel,#reports>.panel{padding:14px}
+ #budgets .grid,#assets .grid,#investments .grid,#commitments .grid,#debts .grid,#reports .grid{gap:8px}
+}
+
 </style>
 </head>
 <body>
@@ -453,6 +532,6 @@ button:not(.del),.btn,.theme-toggle{min-height:44px}
 <div class="panel"><div class="row"><div><b>Preferências</b><p class="settings-note" style="margin:5px 0 0">Suas escolhas ficam salvas neste aparelho e podem ser alteradas quando quiser.</p></div><button type="button" class="btn soft" id="resetPreferences">Restaurar padrão</button></div></div></section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="accounts"><span>🏦</span><span><b>Contas e carteiras</b><small>Saldos e transferências</small></span></button><button class="nav-menu-item" data-page="assets"><span>🏠</span><span><b>Patrimônio</b><small>Bens, obrigações e patrimônio líquido</small></span></button><button class="nav-menu-item" data-page="investments"><span>📈</span><span><b>Investimentos</b><small>Carteira e rendimentos</small></span></button><button class="nav-menu-item" data-page="commitments"><span>📅</span><span><b>Compromissos</b><small>Pagamentos futuros e avulsos</small></span></button><button class="nav-menu-item" data-page="debts"><span>📉</span><span><b>Dívidas</b><small>Saldo devedor e pagamentos</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 8/8</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 1/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=34"></script>
 </body></html>
