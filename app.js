@@ -38,7 +38,7 @@ function monthKey(d){return d.slice(0,7)}
 function addMonths(date,n){let d=new Date(date+'T12:00:00');let day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+n);let last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return monthKey(todayFromDate(d))}
 function todayFromDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function installmentValue(p){return p.amount/p.installments}
-function purchaseInMonth(p,m){let start=monthKey(p.date);let diff=(Number(m.slice(0,4))-Number(start.slice(0,4)))*12+Number(m.slice(5,7))-Number(start.slice(5,7));return diff>=0&&diff<p.installments?installmentValue(p):0}
+function purchaseInMonth(p,m){let card=cards.find(c=>c.id===p.cardId),start=monthKey(p.date);if(card&&Number(p.date.slice(8,10))>card.closing)start=addMonths(p.date,1);let diff=(Number(m.slice(0,4))-Number(start.slice(0,4)))*12+Number(m.slice(5,7))-Number(start.slice(5,7));return diff>=0&&diff<p.installments?installmentValue(p):0}
 function renderCards(){
  const sel=$('purchaseCard');if(!sel)return;
  sel.innerHTML='<option value="">Selecione um cartão</option>'+cards.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.bank||'')}</option>`).join('');
