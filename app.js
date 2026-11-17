@@ -84,6 +84,31 @@ function render(){
  $('monthResult').textContent=money(im-em);cats('expense','categories',mi);cats('income','incomeCategories',mi);
  if(window.renderDashboardInsights)window.renderDashboardInsights();
 }
+function renderSmartAnalysis(){
+ const now=today(),parts=now.split('-').map(Number),year=parts[0],month=parts[1],day=parts[2],monthKey=now.slice(0,7);
+ const current=data.filter(x=>x.date&&x.date.slice(0,7)===monthKey),income=total('income',current),expense=total('expense',current),net=income-expense,rate=income>0?net/income*100:null;
+ const prevDate=new Date(year,month-2,Math.min(day,new Date(year,month-1,0).getDate()));
+ const prevKey=prevDate.getFullYear()+'-'+String(prevDate.getMonth()+1).padStart(2,'0');
+ const prevCut=prevKey+'-'+String(Math.min(day,new Date(prevDate.getFullYear(),prevDate.getMonth()+1,0).getDate())).padStart(2,'0');
+ const prevExpense=total('expense',data.filter(x=>x.date&&x.date>=prevKey+'-01'&&x.date<=prevCut));
+ const change=prevExpense>0?(expense-prevExpense)/prevExpense*100:null;
+ const groups={};current.filter(x=>x.type==='expense').forEach(x=>groups[x.category]=(groups[x.category]||0)+Number(x.amount||0));
+ const top=Object.entries(groups).sort((a,b)=>b[1]-a[1])[0],categoryShare=top&&expense>0?top[1]/expense*100:0;
+ const alerts=budgets.map(b=>{const spent=groups[b.category]||0;return {name:b.category,spent,limit:Number(b.limit)||0,pct:b.limit>0?spent/b.limit*100:0}}).filter(x=>x.pct>=80).sort((a,b)=>b.pct-a.pct);
+ const fmt=v=>hidden?'••••••':money(v),pct=v=>hidden?'••':Math.abs(v).toFixed(1).replace('.',',')+'%';
+ const items=[];
+ if(income===0&&expense===0)items.push(['neutral','Ainda faltam dados','Registre receitas e despesas para receber análises mais completas.']);
+ else if(income>0)items.push([net>=0?'good':'warn','Resultado do mês',net>=0?'Até agora sobraram '+fmt(net)+' das receitas registradas.':'As despesas superam as receitas em '+fmt(Math.abs(net))+' neste mês.']);
+ else items.push(['warn','Atenção ao fluxo','Há despesas registradas, mas nenhuma receita neste mês até agora.']);
+ if(change===null)items.push(['neutral','Comparação mensal','Ainda não há despesas no período equivalente do mês anterior para comparar.']);
+ else items.push([change>10?'warn':change< -5?'good':'neutral','Despesas vs. mês anterior',(change>0?'As despesas estão '+pct(change)+' maiores':change<0?'As despesas estão '+pct(change)+' menores':'As despesas estão no mesmo nível')+' que no mesmo período do mês anterior ('+fmt(prevExpense)+').']);
+ if(top)items.push(['neutral','Maior categoria',top[0]+' concentra '+pct(categoryShare)+' das despesas do mês ('+fmt(top[1])+').']);
+ if(alerts.length)items.push(['warn','Limites pedem atenção',alerts.slice(0,3).map(x=>x.name+' ('+pct(x.pct)+' do limite)').join(' · ')+'.']);
+ else if(budgets.length)items.push(['good','Limites sob controle','Nenhuma categoria cadastrada atingiu 80% do limite neste mês.']);
+ else items.push(['neutral','Configure seus limites','Adicione limites por categoria em Planejamento para receber alertas preventivos.']);
+ if(rate!==null)items.push([rate>=20?'good':rate>=0?'neutral':'warn','Taxa de economia',pct(rate)+' das receitas ficou como resultado líquido neste mês.']);
+ $('smartInsights').innerHTML=items.map(([status,title,description])=>'<article class="dash-alert"><div class="row"><b>'+esc(title)+'</b><span class="dash-status '+(status==='good'?'good':status==='warn'?'warn':'')+'">'+(status==='good'?'Positivo':status==='warn'?'Atenção':'Análise')+'</span></div><small>'+esc(description)+'</small></article>').join('');
+}
 function renderReports(){
  const months=Number($('reportPeriod').value||6),now=new Date(),keys=[];
  for(let i=months-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);keys.push(String(d.getFullYear())+'-'+String(d.getMonth()+1).padStart(2,'0'))}
@@ -102,6 +127,7 @@ function renderReports(){
  $('reportCategories').innerHTML=cats.length?cats.map(([name,value],i)=>'<div style="margin-bottom:13px"><div class="row" style="font-size:13px"><span>'+esc(name)+'</span><b>'+money(value)+' · '+(value/catTotal*100).toFixed(1)+'%</b></div><div class="bar"><div style="width:'+(value/catTotal*100)+'%;background:'+palette[i%palette.length]+'"></div></div></div>').join(''):'<span class="muted">Nenhuma despesa neste período.</span>';
  const maxResult=Math.max(1,...monthData.map(x=>Math.abs(x.balance)));
  $('reportBalance').innerHTML=monthData.map(m=>'<div style="margin-bottom:13px"><div class="row" style="font-size:13px;margin-bottom:5px"><span>'+new Date(m.key+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'})+'</span><b style="color:'+(m.balance>=0?'#26956a':'#c75e5e')+'">'+money(m.balance)+'</b></div><div class="bar"><div style="width:'+(Math.abs(m.balance)/maxResult*100)+'%;background:'+(m.balance>=0?'#55b98b':'#df7777')+'"></div></div></div>').join('');
+ renderSmartAnalysis();
 }
 $('reportPeriod').addEventListener('change',renderReports);
 
