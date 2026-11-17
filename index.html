@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#193f32">
+<meta name="description" content="Controle simples de receitas e despesas pessoais.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Meu Controle Financeiro</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#20332b;background:#f4f7f5;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;padding:18px 14px calc(90px + env(safe-area-inset-bottom));max-width:620px;margin-inline:auto}
+header{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 18px}
+h1{font-size:21px;margin:2px 0}.eyebrow,.muted{color:#718078}.eyebrow{font-size:11px;letter-spacing:1px;font-weight:700}
+.panel{background:white;border:1px solid #e2eae5;border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 3px 12px #183f3210}
+.balance{background:#193f32;color:white;border:0}.balance .muted{color:#c4d9d0}.amount{font-size:30px;font-weight:750;margin:8px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{font-size:19px;font-weight:700;margin-top:8px}
+button,input,select{font:inherit}button{cursor:pointer}.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:650}
+.primary{background:#245c48;color:white}.soft{background:#edf3ef;color:#245c48;border:1px solid #dce8e0}
+.wide{width:100%}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bar{height:9px;background:#edf1ee;border-radius:20px;overflow:hidden;margin:7px 0 13px}.bar>div{height:100%;border-radius:20px}
+.field{width:100%;padding:12px;border:1px solid #dbe5de;border-radius:10px;background:#fbfcfb;color:#20332b;margin-top:6px}
+label{display:block;font-size:13px;font-weight:650;margin-bottom:13px}
+.tx{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #edf1ee}.tx:last-child{border:0}
+.dot{width:39px;height:39px;border-radius:12px;background:#edf3ef;display:grid;place-items:center;flex-shrink:0}
+.txmain{flex:1;min-width:0}.txmain strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.txmain small{color:#718078}
+.txval{text-align:right;font-size:13px;font-weight:700;white-space:nowrap}.del{display:block;border:0;background:none;color:#718078;text-decoration:underline;font-size:11px;margin:4px 0 0 auto;padding:0}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;max-width:620px;margin:auto;padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e2eae5;z-index:5}
+.navbtn{border:0;background:none;color:#718078;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 10px}.navbtn.active{color:#245c48;font-weight:750}.navbtn span{font-size:20px}
+.page{display:none}.page.active{display:block}.toast{font-size:13px;text-align:center;color:#245c48;min-height:20px;margin-top:8px}
+.hidden{display:none!important}
+@media(min-width:500px){body{padding-top:26px}.panel{padding:19px}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">CONTROLE FINANCEIRO</div><h1>Meu dinheiro <span style="color:#57a785">.</span></h1></div><div style="font-size:25px">💰</div></header>
+
+<main>
+<section id="dashboard" class="page active">
+ <div class="panel balance"><div class="row"><span class="muted">Saldo disponível</span><button id="toggleBalance" aria-label="Ocultar saldo" style="background:none;border:0;color:white">◉</button></div><div class="amount" id="balance">R$ 0,00</div><small class="muted">Resultado das suas movimentações</small></div>
+ <div class="grid">
+  <div class="panel"><div class="muted" style="font-size:13px">↗ Receitas</div><div class="stat" id="income">R$ 0,00</div></div>
+  <div class="panel"><div class="muted" style="font-size:13px">↙ Despesas</div><div class="stat" id="expense">R$ 0,00</div></div>
+ </div>
+ <div class="panel"><div class="row"><b>Resumo do mês</b><small class="muted" id="monthLabel"></small></div><div class="row" style="font-size:13px;margin-top:15px"><span class="muted">Receitas</span><b id="monthIncome">R$ 0,00</b></div><div class="bar"><div id="incomeBar" style="background:#55b98b;width:0%"></div></div><div class="row" style="font-size:13px"><span class="muted">Despesas</span><b id="monthExpense">R$ 0,00</b></div><div class="bar"><div id="expenseBar" style="background:#df7777;width:0%"></div></div></div>
+ <div class="row" style="margin:18px 2px 8px"><b>Últimas movimentações</b><button class="soft btn" data-page="history">Ver todas</button></div>
+ <div class="panel" id="recent"><div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação ainda.</div></div>
+ <button class="btn primary wide" data-page="add">＋ Adicionar movimentação</button>
+</section>
+
+<section id="add" class="page">
+ <h2>Nova movimentação</h2><p class="muted" style="font-size:13px">Registre seu dinheiro de forma simples.</p>
+ <div class="grid" style="margin:16px 0"><button class="btn primary" id="incomeType">＋ Receita</button><button class="btn soft" id="expenseType">－ Despesa</button></div>
+ <form class="panel" id="txForm">
+  <label>Descrição<input class="field" id="description" placeholder="Ex.: Salário, mercado..." maxlength="65" required></label>
+  <label>Valor (R$)<input class="field" id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label>
+  <label>Categoria<select class="field" id="category"></select></label>
+  <label>Data<input class="field" id="date" type="date" required></label>
+  <button class="btn primary wide" type="submit">Salvar movimentação</button>
+ </form>
+</section>
+
+<section id="history" class="page">
+ <h2>Histórico</h2><p class="muted" style="font-size:13px">Todas as suas movimentações.</p>
+ <input class="field" id="filterText" placeholder="Buscar por descrição ou categoria..." style="margin:8px 0 12px">
+ <div class="grid" style="margin-bottom:12px"><button class="btn primary" data-filter="all">Todas</button><button class="btn soft" data-filter="income">Receitas</button></div>
+ <button class="btn soft wide" data-filter="expense" style="margin-bottom:12px">Mostrar despesas</button>
+ <div class="panel" id="historyList"></div>
+</section>
+
+<section id="summary" class="page">
+ <h2>Resumo financeiro</h2><p class="muted" style="font-size:13px">Entenda para onde seu dinheiro está indo.</p>
+ <div class="panel"><div class="muted" style="font-size:13px">Resultado deste mês</div><div class="stat" id="monthResult">R$ 0,00</div></div>
+ <div class="panel"><b>Despesas por categoria</b><div id="categories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma despesa neste mês.</div></div>
+ <div class="panel"><b>Receitas por categoria</b><div id="incomeCategories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma receita neste mês.</div></div>
+</section>
+</main>
+<nav>
+ <button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button>
+ <button class="navbtn" data-page="history"><span>☷</span>Histórico</button>
+ <button class="navbtn" data-page="add"><span>＋</span>Adicionar</button>
+ <button class="navbtn" data-page="summary"><span>▥</span>Resumo</button>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<script src="app.js"></script>
+</body></html>
