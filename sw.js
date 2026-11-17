@@ -1,4 +1,4 @@
-const CACHE='meu-financeiro-v2';
+const CACHE='meu-financeiro-v3';
 const FILES=['./','./index.html','./app.js','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',event=>{
