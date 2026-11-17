@@ -288,7 +288,7 @@ function calendarEventsForDate(date){
  goals.filter(g=>g.deadline).forEach(g=>add({id:'goal-deadline-'+g.id,sourceId:g.id,kind:'goal',date:g.deadline,title:'Prazo da meta · '+g.name,subtitle:'Meta financeira',amount:null,status:goalSaved(g.id)>=Number(g.target||0)?'done':'pending',icon:'🏁'}));
  goalDeposits.forEach(d=>add({id:'goal-deposit-'+d.id,sourceId:d.id,kind:'goalDeposit',date:d.date,title:'Depósito · '+(goals.find(g=>g.id===d.goalId)?.name||'Meta'),subtitle:d.note||'Depósito em meta',amount:Number(d.amount||0),status:'done',icon:'🐷'}));
  transfers.forEach(t=>add({id:'transfer-'+t.id,sourceId:t.id,kind:'transfer',date:t.date,title:'Transferência entre contas',subtitle:t.note||'Movimentação interna',amount:Number(t.amount||0),status:'done',icon:'⇄'}));
- return events.sort((a,b)=>({pending:0,done:1,paid:2}[a.status]-({pending:0,done:1,paid:2}[b.status])||a.title.localeCompare(b.title,'pt-BR'));
+ const order={pending:0,done:1,paid:2};return events.sort((a,b)=>order[a.status]-order[b.status]||a.title.localeCompare(b.title,'pt-BR'));
 }
 function renderCalendar(){
  const [year,month]=calendarMonth.split('-').map(Number),first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();$('calendarTitle').textContent=first.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
