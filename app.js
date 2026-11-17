@@ -314,10 +314,16 @@ function renderCalendar(){
  for(let day=1;day<=days;day++){const date=dueDateForMonth(day,calendarMonth),events=filteredCalendarEvents(date),allPaid=events.length>0&&events.every(x=>x.status==='paid'||x.status==='done'),cls=[date===calendarSelected?'selected':'',events.length?'has-bill':'',allPaid?'all-paid':''].filter(Boolean).join(' ');cells.push(`<button type="button" class="calendar-day ${cls}" data-calendar-day="${date}" aria-label="${day}, ${events.length} evento(s)">${day}${events.length?'<i class="calendar-dot"></i>':''}</button>`)}
  $('calendarGrid').innerHTML=cells.join('');renderCalendarFilters();renderCalendarDetails();
 }
+function calendarEventAction(event){
+ const editTypes={recurring:'recurring',income:'tx',expense:'tx',invoice:'card',commitment:'commitment',debt:'debt',debtPayment:'debtPayment',goal:'goal',goalDeposit:'deposit',transfer:'transfer'};
+ const type=editTypes[event.kind];if(!type)return '';
+ if(type==='commitment')return '<button class="del" data-commitment-edit="'+esc(event.sourceId)+'">Editar</button>';
+ return '<button class="del" data-calendar-edit="'+type+'" data-calendar-edit-id="'+esc(event.sourceId)+'">Editar</button>';
+}
 function renderCalendarDetails(){
  const [y,m,d]=calendarSelected.split('-').map(Number),date=calendarSelected;$('calendarSelectedTitle').textContent=new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
  const events=filteredCalendarEvents(date),fmt=v=>hidden?'••••••':money(v),statusLabel={pending:'Pendente',paid:'Pago',done:'Registrado'};
- $('calendarDayDetails').innerHTML=events.length?events.map(event=>`<div class="tx"><div class="dot">${event.icon}</div><div class="txmain"><strong>${esc(event.title)}</strong><small>${esc(event.subtitle)} · ${statusLabel[event.status]||'Evento'}</small></div><div class="txval">${event.amount===null?'':fmt(event.amount)}${event.kind==='income'?'<small style="display:block;color:#26956a">Entrada</small>':event.kind==='expense'||event.kind==='debtPayment'?'<small style="display:block;color:#c75e5e">Saída</small>':''}${event.action==='pay-recurring'?'<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="'+esc(event.sourceId)+'">Marcar paga</button>':''}</div></div>`).join(''):'<span class="muted">Nenhum evento financeiro nesta data.</span>';
+ $('calendarDayDetails').innerHTML=events.length?events.map(event=>`<div class="tx"><div class="dot">${event.icon}</div><div class="txmain"><strong>${esc(event.title)}</strong><small>${esc(event.subtitle)} · ${statusLabel[event.status]||'Evento'}</small></div><div class="txval">${event.amount===null?'':fmt(event.amount)}${event.kind==='income'?'<small style="display:block;color:#26956a">Entrada</small>':event.kind==='expense'||event.kind==='debtPayment'?'<small style="display:block;color:#c75e5e">Saída</small>':''}${calendarEventAction(event)}${event.action==='pay-recurring'?'<button class="btn primary" style="padding:7px 9px;margin-top:5px;font-size:11px" data-recurring-paid="'+esc(event.sourceId)+'">Marcar paga</button>':''}</div></div>`).join(''):'<span class="muted">Nenhum evento financeiro nesta data.</span>';
 
  renderCalendarFinancialSummary();
 }
@@ -400,6 +406,7 @@ $('editClose').addEventListener('click',closeEditor);$('editCancel').addEventLis
 editOverlay.addEventListener('click',e=>{if(e.target===editOverlay)closeEditor()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&editOverlay.classList.contains('open'))closeEditor()});
 document.addEventListener('click',e=>{
+ const quickEdit=e.target.closest('[data-calendar-edit]');if(quickEdit){openEditor(quickEdit.dataset.calendarEdit,quickEdit.dataset.calendarEditId);return}
  const selectors=[['[data-asset-edit]','asset'],['[data-tx-edit]','tx'],['[data-card-edit]','card'],['[data-purchase-edit]','purchase'],['[data-budget-edit]','budget'],['[data-recurring-edit]','recurring'],['[data-goal-edit]','goal'],['[data-goal-deposit-edit]','deposit'],['[data-debt-edit]','debt'],['[data-debt-payment-edit]','debtPayment']];
  for(const [selector,type] of selectors){const button=e.target.closest(selector);if(button){const attr=selector.slice(1,-1).split('=')[0];openEditor(type,button.getAttribute(attr));return}}
 });
