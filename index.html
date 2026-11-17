@@ -27,8 +27,8 @@ label{display:block;font-size:13px;font-weight:650;margin-bottom:13px}
 .dot{width:39px;height:39px;border-radius:12px;background:#edf3ef;display:grid;place-items:center;flex-shrink:0}
 .txmain{flex:1;min-width:0}.txmain strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.txmain small{color:#718078}
 .txval{text-align:right;font-size:13px;font-weight:700;white-space:nowrap}.del{display:block;border:0;background:none;color:#718078;text-decoration:underline;font-size:11px;margin:4px 0 0 auto;padding:0}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;max-width:620px;margin:auto;padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e2eae5;z-index:5}
-.navbtn{border:0;background:none;color:#718078;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 10px}.navbtn.active{color:#245c48;font-weight:750}.navbtn span{font-size:20px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;max-width:620px;margin:auto;padding:8px 3px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e2eae5;z-index:5}
+.navbtn{border:0;background:none;color:#718078;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;padding:4px 5px;min-width:0;flex:1}.navbtn.active{color:#245c48;font-weight:750}.navbtn span{font-size:19px}
 .page{display:none}.page.active{display:block}.toast{font-size:13px;text-align:center;color:#245c48;min-height:20px;margin-top:8px}
 .hidden{display:none!important}
 body[data-theme="dark"]{color:#e7eee9;background:#111a16;color-scheme:dark}
@@ -49,24 +49,23 @@ body[data-theme="dark"] .toast{color:#9ed9b7}
 .card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 @media(min-width:430px){.cards-grid{grid-template-columns:1fr 1fr}}
 body[data-theme="dark"] .credit-card{background:linear-gradient(135deg,#203d30,#315d47)}
-
 .calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
 .calendar-head button{border:1px solid #dce8e0;background:#edf3ef;color:#245c48;border-radius:10px;padding:8px 12px;font-weight:700}
 .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center}
 .calendar-weekday{font-size:11px;color:#718078;font-weight:700;padding:5px 0}
 .calendar-day{position:relative;min-height:42px;border:1px solid transparent;border-radius:10px;background:transparent;color:inherit;font-size:13px}
-.calendar-day.selected{background:#245c48;color:#fff}
-.calendar-day.has-bill{border-color:#d49a3a}
-.calendar-day.all-paid{border-color:#55b98b}
+.calendar-day.selected{background:#245c48;color:#fff}.calendar-day.has-bill{border-color:#d49a3a}.calendar-day.all-paid{border-color:#55b98b}
 .calendar-day .calendar-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#d49a3a;bottom:4px;left:calc(50% - 3px)}
 .calendar-day.all-paid .calendar-dot{background:#55b98b}
 .calendar-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#718078;margin-top:12px}
-.calendar-legend span{display:flex;align-items:center;gap:5px}
-.calendar-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;background:#d49a3a}
-.calendar-legend .paid-dot{background:#55b98b}
+.calendar-legend span{display:flex;align-items:center;gap:5px}.calendar-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;background:#d49a3a}.calendar-legend .paid-dot{background:#55b98b}
 body[data-theme="dark"] .calendar-head button{background:#26382e;color:#cce3d5;border-color:#3a5043}
-body[data-theme="dark"] .calendar-weekday{color:#a8b9af}
-body[data-theme="dark"] .calendar-day.selected{background:#34765a}
+body[data-theme="dark"] .calendar-weekday{color:#a8b9af}body[data-theme="dark"] .calendar-day.selected{background:#34765a}
+.goal-card{border:1px solid #e2eae5;border-radius:15px;padding:14px;margin-bottom:12px;background:#fff}
+.goal-card .bar{height:11px;margin:12px 0 8px}
+.goal-meta{font-size:12px;color:#718078}
+body[data-theme="dark"] .goal-card{background:#1b2922;border-color:#304238}
+body[data-theme="dark"] .goal-meta{color:#a8b9af}
 </style>
 </head>
 <body>
@@ -87,27 +86,25 @@ body[data-theme="dark"] .calendar-day.selected{background:#34765a}
 <h3 style="margin:18px 2px 8px">Calendário de contas</h3>
  <div class="panel" style="margin-top:14px"><div class="calendar-head"><button type="button" id="calendarPrev" aria-label="Mês anterior">‹</button><b id="calendarTitle"></b><button type="button" id="calendarNext" aria-label="Próximo mês">›</button></div><div id="calendarGrid" class="calendar-grid"></div><div class="calendar-legend"><span><i></i>Conta pendente</span><span><i class="paid-dot"></i>Conta paga</span></div></div>
  <div class="panel"><b id="calendarSelectedTitle">Contas do dia</b><div id="calendarDayDetails" style="margin-top:8px"><span class="muted">Selecione um dia do calendário.</span></div></div><div class="panel"><div class="muted" style="font-size:13px">Resultado deste mês</div><div class="stat" id="monthResult">R$ 0,00</div></div><div class="panel"><b>Despesas por categoria</b><div id="categories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma despesa neste mês.</div></div><div class="panel"><b>Receitas por categoria</b><div id="incomeCategories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma receita neste mês.</div></div></section>
-
-<section id="budgets" class="page"><h2>Limites de gastos</h2><p class="muted" style="font-size:13px">Defina quanto deseja gastar por categoria neste mês.</p>
+<section id="budgets" class="page"><h2>Planejamento</h2><p class="muted" style="font-size:13px">Organize seus limites e contas fixas.</p>
  <div class="panel"><b>Definir limite mensal</b><form id="budgetForm" style="margin-top:14px"><label>Categoria<select class="field" id="budgetCategory"><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Compras</option><option>Contas</option><option>Cartão de crédito</option><option>Outros</option></select></label><label>Limite mensal (R$)<input class="field" id="budgetLimit" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><button class="btn primary wide" type="submit">Salvar limite</button></form></div>
  <div class="row" style="margin:18px 2px 8px"><b>Seus limites</b><small class="muted" id="budgetMonth"></small></div><div id="budgetsList"></div>
-
 <h3 style="margin:26px 2px 8px">Contas fixas</h3><p class="muted" style="font-size:13px">Cadastre contas que se repetem todo mês e acompanhe os pagamentos.</p>
  <div class="panel"><b>Adicionar conta recorrente</b><form id="recurringForm" style="margin-top:14px"><label>Nome da conta<input class="field" id="recurringName" placeholder="Ex.: Internet, aluguel..." maxlength="55" required></label><label>Valor (R$)<input class="field" id="recurringAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><div class="grid"><label>Categoria<select class="field" id="recurringCategory"><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Compras</option><option>Contas</option><option>Outros</option></select></label><label>Dia do vencimento<input class="field" id="recurringDue" type="number" min="1" max="31" placeholder="Ex.: 10" required></label></div><button class="btn primary wide" type="submit">Salvar conta</button></form></div>
- 
-
-
  <div class="row" style="margin:18px 2px 8px"><b>Contas deste mês</b><small class="muted" id="recurringMonth"></small></div><div id="recurringList"></div>
-
 </section>
-
 <section id="cards" class="page"><h2>Cartões de crédito</h2><p class="muted" style="font-size:13px">Acompanhe limites, compras e faturas sem misturar com seu saldo.</p>
  <div class="panel"><b>Adicionar cartão</b><form id="cardForm" style="margin-top:14px"><label>Nome do cartão<input class="field" id="cardName" placeholder="Ex.: Cartão principal" maxlength="35" required></label><label>Banco ou instituição<input class="field" id="cardBank" placeholder="Ex.: Nubank" maxlength="35"></label><label>Limite total (R$)<input class="field" id="cardLimit" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><div class="grid"><label>Dia de fechamento<input class="field" id="cardClosing" type="number" min="1" max="31" placeholder="Ex.: 10" required></label><label>Dia de vencimento<input class="field" id="cardDue" type="number" min="1" max="31" placeholder="Ex.: 17" required></label></div><button class="btn primary wide" type="submit">Salvar cartão</button></form></div>
  <div class="panel"><b>Registrar compra</b><form id="purchaseForm" style="margin-top:14px"><label>Cartão<select class="field" id="purchaseCard" required><option value="">Selecione um cartão</option></select></label><label>Descrição<input class="field" id="purchaseDescription" maxlength="65" placeholder="Ex.: Compra no mercado" required></label><label>Valor total (R$)<input class="field" id="purchaseAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><div class="grid"><label>Data da compra<input class="field" id="purchaseDate" type="date" required></label><label>Parcelas<select class="field" id="purchaseInstallments"><option value="1">À vista</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option><option value="7">7x</option><option value="8">8x</option><option value="9">9x</option><option value="10">10x</option><option value="11">11x</option><option value="12">12x</option><option value="18">18x</option><option value="24">24x</option></select></label></div><button class="btn primary wide" type="submit">Registrar compra</button></form></div>
  <div class="row" style="margin:18px 2px 8px"><b>Meus cartões</b><small class="muted" id="cardsCount">0 cartões</small></div><div id="cardsList" class="cards-grid"></div><div class="panel"><div class="row"><b>Fatura deste mês</b><small class="muted" id="cardMonthLabel"></small></div><div id="cardBills" style="margin-top:10px"></div></div><div class="panel"><b>Compras registradas</b><div id="cardPurchases" style="margin-top:8px"></div></div>
 </section>
+<section id="goals" class="page"><h2>Metas financeiras</h2><p class="muted" style="font-size:13px">Defina objetivos e acompanhe cada conquista.</p>
+ <div class="panel"><b>＋ Criar nova meta</b><form id="goalForm" style="margin-top:14px"><label>Nome da meta<input class="field" id="goalName" maxlength="55" placeholder="Ex.: Viagem, celular novo..." required></label><label>Valor desejado (R$)<input class="field" id="goalTarget" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><label>Prazo (opcional)<input class="field" id="goalDeadline" type="date"></label><button class="btn primary wide" type="submit">Criar meta</button></form></div>
+ <div class="row" style="margin:18px 2px 8px"><b>Minhas metas</b><small class="muted" id="goalsCount">0 metas</small></div><div id="goalsList"></div>
+ <div class="panel"><b>Últimos depósitos</b><div id="goalDeposits" style="margin-top:8px"></div></div>
+</section>
 </main>
-<nav><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><button class="navbtn" data-page="budgets"><span>🎯</span>Planejar</button><button class="navbtn" data-page="cards"><span>💳</span>Cartões</button></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 6.0</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
-<script src="app.js?v=9"></script>
+<nav><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><button class="navbtn" data-page="budgets"><span>🎯</span>Planejar</button><button class="navbtn" data-page="goals"><span>🏁</span>Metas</button><button class="navbtn" data-page="cards"><span>💳</span>Cartões</button></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 6.1</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<script src="app.js?v=10"></script>
 </body></html>
