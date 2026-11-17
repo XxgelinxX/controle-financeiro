@@ -258,6 +258,38 @@ body[data-theme="dark"] .dash-chip{background:#263c2e;color:#a9d9b8}
 body[data-theme="dark"] .dash-bars{border-color:#405448}
 @media(max-width:370px){.dash-kpis .panel{padding:12px}.dash-legend{font-size:8px;gap:3px}.dash-month-chart{gap:4px}}
 
+
+/* Etapa 6 — animações e microinterações */
+@keyframes page-enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes panel-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toast-pop{0%{opacity:.35;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
+.page.active{animation:page-enter .28s cubic-bezier(.2,.7,.25,1) both}
+.page.active>.panel,.page.active>.grid,.page.active>.dash-insights,.page.active>h2,.page.active>h3{
+ animation:panel-enter .32s cubic-bezier(.2,.7,.25,1) both;
+}
+.page.active>.panel:nth-of-type(2),.page.active>.grid:nth-of-type(2){animation-delay:.035s}
+.page.active>.panel:nth-of-type(3),.page.active>.grid:nth-of-type(3){animation-delay:.07s}
+.page.active>.panel:nth-of-type(4){animation-delay:.105s}
+.panel,.goal-card,.credit-card{transition:transform .2s ease,box-shadow .22s ease,border-color .2s ease}
+@media(hover:hover) and (pointer:fine){
+ .panel:not(.balance):hover,.goal-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(19,59,44,.085)}
+ .credit-card:hover{transform:translateY(-2px);box-shadow:0 13px 26px rgba(16,43,34,.2)}
+}
+.btn,.theme-toggle,.navbtn,.nav-menu-item,.calendar-day{transition:transform .15s ease,background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease}
+.btn:active,.theme-toggle:active,.nav-menu-item:active,.calendar-day:active{transform:scale(.97)}
+.navbtn.active{transition:color .18s ease,background-color .18s ease}
+.main-nav>.navbtn.active{background:var(--brand-100)}
+.dash-bar,.bar>div{transform-origin:left center;transition:width .45s cubic-bezier(.2,.7,.25,1),height .45s cubic-bezier(.2,.7,.25,1)}
+.toast:not(:empty){animation:toast-pop .22s ease-out}
+.edit-overlay{opacity:0;transition:opacity .2s ease}
+.edit-overlay.open{opacity:1}
+.edit-dialog{transform:translateY(12px) scale(.99);transition:transform .22s cubic-bezier(.2,.7,.25,1)}
+.edit-overlay.open .edit-dialog{transform:translateY(0) scale(1)}
+button:focus-visible,.nav-more>summary:focus-visible,.calendar-day:focus-visible{outline:3px solid rgba(61,155,112,.38);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
 </style>
 </head>
 <body>
@@ -311,6 +343,6 @@ body[data-theme="dark"] .dash-bars{border-color:#405448}
 </section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 6.6 · Visual 4/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
-<script src="app.js?v=23"></script>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 6.7 · Visual 6/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<script src="app.js?v=24"></script>
 </body></html>
