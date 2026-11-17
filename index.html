@@ -314,6 +314,66 @@ body[data-theme="dark"][data-accent="amber"]{--brand-950:#422b12;--brand-900:#5b
 body[data-theme="dark"] .settings-choice{background:var(--surface);color:var(--ink)}
 @media(max-width:360px){.settings-grid{grid-template-columns:1fr}}
 
+
+
+/* Etapa 8 — refinamento mobile */
+html{min-width:320px;scroll-padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+body{width:100%;min-width:320px;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+.panel,.goal-card,.credit-card{min-width:0}
+.grid,.settings-grid,.cards-grid{min-width:0}
+.grid>*{min-width:0}
+.field{width:100%;max-width:100%;min-width:0}
+input,select,textarea{max-width:100%}
+button,.btn,.theme-toggle,.navbtn,.nav-menu-item,.calendar-day{touch-action:manipulation}
+button:not(.del),.btn,.theme-toggle{min-height:44px}
+.del{min-height:36px;padding:7px 10px}
+.tx{min-width:0}
+.txval{max-width:42%;overflow-wrap:anywhere}
+.calendar-day{min-height:44px}
+.main-nav{padding-bottom:calc(9px + env(safe-area-inset-bottom));min-height:72px}
+.nav-menu{max-height:min(70vh,520px);overflow-y:auto;overscroll-behavior:contain}
+.edit-overlay{padding:0;align-items:flex-end}
+.edit-dialog{width:100%;max-width:560px;max-height:min(90dvh,820px);padding:18px 16px calc(18px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0;overscroll-behavior:contain}
+.edit-dialog .edit-actions{position:sticky;bottom:-18px;padding:12px 0 4px;background:var(--surface)}
+.edit-dialog .edit-actions button{min-height:48px}
+@media(max-width:430px){
+ body{padding-top:14px}
+ header{gap:10px;margin-bottom:14px}
+ h1{font-size:19px}
+ h2{font-size:20px}
+ .panel{padding:15px;margin-bottom:12px;border-radius:17px}
+ .grid{gap:9px}
+ #dashboard>.grid>.panel{min-height:96px}
+ .field{font-size:16px;min-height:50px;padding:13px}
+ label{margin-bottom:13px}
+ .btn{padding:12px 13px}
+ .main-nav{gap:2px;padding-left:5px;padding-right:5px}
+ .main-nav>.navbtn,.nav-more>summary{font-size:10px;padding-left:2px;padding-right:2px}
+ .nav-menu{right:-3px}
+ .calendar-grid{gap:3px}
+ .calendar-day{min-height:42px;border-radius:9px}
+ .tx{gap:8px}
+ .dot{width:35px;height:35px}
+ .txval{font-size:12px}
+}
+@media(max-width:350px){
+ body{padding-left:10px;padding-right:10px}
+ .panel{padding:13px}
+ .grid{gap:7px}
+ #dashboard>.grid>.panel .stat{font-size:16px}
+ .main-nav>.navbtn span,.nav-more>summary span{font-size:18px}
+ .calendar-day{font-size:12px;min-height:39px}
+ .edit-dialog{padding-left:13px;padding-right:13px}
+}
+@media(min-width:600px){
+ .edit-overlay{align-items:center;padding:18px}
+ .edit-dialog{width:min(100%,560px);border-radius:22px;padding:20px}
+ .edit-dialog .edit-actions{position:static;padding:0}
+}
+@media(hover:none){
+ button:hover,.btn:hover{filter:none}
+}
+
 </style>
 </head>
 <body>
@@ -380,5 +440,5 @@ body[data-theme="dark"] .settings-choice{background:var(--surface);color:var(--i
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 6.8 · Visual 7/8</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
-<script src="app.js?v=25"></script>
+<script src="app.js?v=26"></script>
 </body></html>
