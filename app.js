@@ -3,7 +3,10 @@ const $=id=>document.getElementById(id), money=n=>n.toLocaleString('pt-BR',{styl
 const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 let data=[];try{data=JSON.parse(localStorage.getItem('meuControleFin_v1')||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
 let type='income',filter='all',hidden=false;
-let cards=[],cardPurchases=[];\ntry{cards=JSON.parse(localStorage.getItem('meuControleFin_cards_v1')||'[]');if(!Array.isArray(cards))cards=[]}catch(e){cards=[]}\ntry{cardPurchases=JSON.parse(localStorage.getItem('meuControleFin_cardPurchases_v1')||'[]');if(!Array.isArray(cardPurchases))cardPurchases=[]}catch(e){cardPurchases=[]}\nconst saveCards=()=>{try{localStorage.setItem('meuControleFin_cards_v1',JSON.stringify(cards));localStorage.setItem('meuControleFin_cardPurchases_v1',JSON.stringify(cardPurchases))}catch(e){toast('Não foi possível salvar os cartões neste aparelho.')}};
+let cards=[],cardPurchases=[];
+try{cards=JSON.parse(localStorage.getItem('meuControleFin_cards_v1')||'[]');if(!Array.isArray(cards))cards=[]}catch(e){cards=[]}
+try{cardPurchases=JSON.parse(localStorage.getItem('meuControleFin_cardPurchases_v1')||'[]');if(!Array.isArray(cardPurchases))cardPurchases=[]}catch(e){cardPurchases=[]}
+const saveCards=()=>{try{localStorage.setItem('meuControleFin_cards_v1',JSON.stringify(cards));localStorage.setItem('meuControleFin_cardPurchases_v1',JSON.stringify(cardPurchases))}catch(e){toast('Não foi possível salvar os cartões neste aparelho.')}};
 const applyTheme=theme=>{document.body.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀️ Claro':'🌙 Escuro';$('themeToggle').setAttribute('aria-label',theme==='dark'?'Ativar modo claro':'Ativar modo escuro');document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#111a16':'#193f32'};
 let savedTheme='light';try{savedTheme=localStorage.getItem('meuControleFin_theme')||'light'}catch(e){}
 applyTheme(savedTheme==='dark'?'dark':'light');
