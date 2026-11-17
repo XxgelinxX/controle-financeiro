@@ -199,6 +199,30 @@ body[data-theme="dark"] .credit-card{box-shadow:0 9px 22px #0004}
  .credit-card{padding:16px}
 }
 
+
+/* Redesign etapa 4 — navegação híbrida */
+.main-nav{height:auto;min-height:66px;align-items:stretch;justify-content:space-around;padding:7px 8px calc(7px + env(safe-area-inset-bottom));gap:4px}
+.main-nav>.navbtn{flex:1;min-width:0;max-width:25%;border-radius:13px;padding:6px 3px;font-size:10px;justify-content:center}
+.main-nav>.navbtn span{font-size:20px;line-height:22px}
+.nav-more{position:relative;flex:1;max-width:25%;display:flex;justify-content:center}
+.nav-more>summary{list-style:none;cursor:pointer;flex:1;min-width:0;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted-ink);font-size:10px;padding:6px 3px}
+.nav-more>summary::-webkit-details-marker{display:none}
+.nav-more[open]>summary{color:var(--brand-700);background:var(--brand-100);font-weight:800}
+.nav-more>summary span{font-size:19px;line-height:22px;font-weight:800;letter-spacing:1px}
+.nav-menu{position:absolute;right:0;bottom:calc(100% + 13px);width:min(285px,calc(100vw - 28px));padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 38px rgba(10,35,24,.2);display:grid;gap:4px;z-index:20}
+.nav-menu:after{content:"";position:absolute;right:22px;bottom:-7px;width:12px;height:12px;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.nav-menu-item{display:flex;align-items:center;gap:12px;text-align:left;width:100%;min-height:54px;padding:8px 11px;border:0;border-radius:12px;background:transparent;color:var(--ink)}
+.nav-menu-item>span:first-child{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:var(--brand-100);font-size:17px;flex-shrink:0}
+.nav-menu-item>span:last-child{display:grid;gap:2px}
+.nav-menu-item b{font-size:13px;font-weight:800}
+.nav-menu-item small{font-size:11px;color:var(--muted-ink)}
+.nav-menu-item:active,.nav-menu-item:hover{background:var(--brand-100)}
+body[data-theme="dark"] .nav-menu{box-shadow:0 14px 38px #0008}
+body[data-theme="dark"] .nav-more[open]>summary{color:#a9d9b8;background:#263c2e}
+body[data-theme="dark"] .nav-menu-item>span:first-child{background:#263c2e}
+body[data-theme="dark"] .nav-menu-item:active,body[data-theme="dark"] .nav-menu-item:hover{background:#263c2e}
+@media(min-width:500px){.main-nav{padding-left:12px;padding-right:12px}.nav-menu{right:0}}
+
 </style>
 </head>
 <body>
@@ -239,7 +263,7 @@ body[data-theme="dark"] .credit-card{box-shadow:0 9px 22px #0004}
  <div class="panel"><b>Últimos depósitos</b><div id="goalDeposits" style="margin-top:8px"></div></div>
 </section>
 </main>
-<nav><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><button class="navbtn" data-page="reports"><span>📊</span>Relatórios</button><button class="navbtn" data-page="budgets"><span>🎯</span>Planejar</button><button class="navbtn" data-page="goals"><span>🏁</span>Metas</button><button class="navbtn" data-page="cards"><span>💳</span>Cartões</button></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 6.6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button></div></details></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 6.6 · Visual 4/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=18"></script>
 </body></html>
