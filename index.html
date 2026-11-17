@@ -672,6 +672,98 @@ body[data-theme="dark"] #cardPurchases:empty:after{
  #transfersList .txval,#debtPaymentsList .txval,#cardPurchases .txval{font-size:11px}
 }
 
+
+/* Visual 2.0 — etapa 4/6: formulários e edição */
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm){
+ min-width:0;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field{
+ width:100%;min-width:0;min-height:46px;padding:12px 13px;
+ border:1px solid var(--line);border-radius:13px;
+ background:var(--canvas);color:var(--ink);
+ font:inherit;font-size:14px;line-height:1.35;
+ transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field::placeholder{
+ color:var(--muted-ink);opacity:.78;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field:focus{
+ outline:none;border-color:var(--brand-500);
+ box-shadow:0 0 0 3px color-mix(in srgb,var(--brand-500) 16%,transparent);
+ background:var(--surface);
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) select.field{
+ appearance:auto;cursor:pointer;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) input[type="date"].field,
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) input[type="number"].field{
+ font-variant-numeric:tabular-nums;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) label{
+ display:block;margin:0 0 6px;color:var(--muted-ink);
+ font-size:11px;font-weight:750;letter-spacing:.025em;line-height:1.4;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .btn{
+ min-height:44px;border-radius:13px;font-size:13px;font-weight:800;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .btn.primary{
+ box-shadow:0 5px 13px color-mix(in srgb,var(--brand-700) 18%,transparent);
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .btn:disabled{
+ opacity:.55;cursor:not-allowed;box-shadow:none;
+}
+:where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field:disabled{
+ opacity:.65;cursor:not-allowed;
+}
+body[data-theme="dark"] :where(form#txForm,form#monthlyPlanForm,form#budgetForm,
+form#recurringForm,form#assetForm,form#investmentForm,form#commitmentForm,
+form#debtForm,form#accountForm,form#transferForm,form#cardForm,
+form#purchaseForm,form#goalForm) .field{
+ background:#111d17;border-color:#30483a;color:#f0f6f1;
+}
+body[data-theme="dark"] :where(form#txForm,form#monthlyPlanForm,form#budgetForm,
+form#recurringForm,form#assetForm,form#investmentForm,form#commitmentForm,
+form#debtForm,form#accountForm,form#transferForm,form#cardForm,
+form#purchaseForm,form#goalForm) .field:focus{
+ background:#17271e;border-color:var(--brand-500);
+}
+@media(max-width:370px){
+ :where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+ form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+ form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field{
+  min-height:44px;padding:11px 12px;font-size:13px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ :where(form#txForm,form#monthlyPlanForm,form#budgetForm,form#recurringForm,
+ form#assetForm,form#investmentForm,form#commitmentForm,form#debtForm,
+ form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field{transition:none}
+}
+
 </style>
 </head>
 <body>
@@ -751,6 +843,6 @@ body[data-theme="dark"] #cardPurchases:empty:after{
 <div class="panel"><div class="row"><div><b>Preferências</b><p class="settings-note" style="margin:5px 0 0">Suas escolhas ficam salvas neste aparelho e podem ser alteradas quando quiser.</p></div><button type="button" class="btn soft" id="resetPreferences">Restaurar padrão</button></div></div></section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="accounts"><span>🏦</span><span><b>Contas e carteiras</b><small>Saldos e transferências</small></span></button><button class="nav-menu-item" data-page="assets"><span>🏠</span><span><b>Patrimônio</b><small>Bens, obrigações e patrimônio líquido</small></span></button><button class="nav-menu-item" data-page="investments"><span>📈</span><span><b>Investimentos</b><small>Carteira e rendimentos</small></span></button><button class="nav-menu-item" data-page="commitments"><span>📅</span><span><b>Compromissos</b><small>Pagamentos futuros e avulsos</small></span></button><button class="nav-menu-item" data-page="debts"><span>📉</span><span><b>Dívidas</b><small>Saldo devedor e pagamentos</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 3/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 4/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=34"></script>
 </body></html>
