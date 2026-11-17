@@ -15,6 +15,28 @@ const applyTheme=theme=>{document.body.dataset.theme=theme;$('themeToggle').text
 let savedTheme='light';try{savedTheme=localStorage.getItem('meuControleFin_theme')||'light'}catch(e){}
 applyTheme(savedTheme==='dark'?'dark':'light');
 $('themeToggle').addEventListener('click',()=>{const next=document.body.dataset.theme==='dark'?'light':'dark';applyTheme(next);try{localStorage.setItem('meuControleFin_theme',next)}catch(e){}});
+
+let preferences={accent:'green',font:'dm',fontSize:'normal',hideValues:false};
+try{const stored=JSON.parse(localStorage.getItem('meuControleFin_preferences_v1')||'null');if(stored&&typeof stored==='object'&&!Array.isArray(stored))preferences={...preferences,...stored}}catch(e){}
+const savePreferences=()=>{try{localStorage.setItem('meuControleFin_preferences_v1',JSON.stringify(preferences))}catch(e){toast('Não foi possível salvar as preferências neste aparelho.')}};
+function applyPreferences(){
+ if(!['green','blue','purple','amber'].includes(preferences.accent))preferences.accent='green';
+ if(!['dm','system','serif'].includes(preferences.font))preferences.font='dm';
+ if(!['small','normal','large'].includes(preferences.fontSize))preferences.fontSize='normal';
+ document.body.dataset.accent=preferences.accent;document.body.dataset.font=preferences.font;document.body.dataset.fontSize=preferences.fontSize;
+ hidden=!!preferences.hideValues;const toggle=$('toggleBalance');if(toggle)toggle.textContent=hidden?'⊘':'◉';
+ document.querySelectorAll('[data-accent-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accentChoice===preferences.accent)));
+ document.querySelectorAll('[data-font-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.fontChoice===preferences.font)));
+ document.querySelectorAll('[data-size-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sizeChoice===preferences.fontSize)));
+ const hide=$('settingsHideValues');if(hide)hide.checked=hidden;
+}
+applyPreferences();
+document.querySelectorAll('[data-accent-choice]').forEach(b=>b.addEventListener('click',()=>{preferences.accent=b.dataset.accentChoice;savePreferences();applyPreferences();toast('Cor atualizada!')}));
+document.querySelectorAll('[data-font-choice]').forEach(b=>b.addEventListener('click',()=>{preferences.font=b.dataset.fontChoice;savePreferences();applyPreferences();toast('Fonte atualizada!')}));
+document.querySelectorAll('[data-size-choice]').forEach(b=>b.addEventListener('click',()=>{preferences.fontSize=b.dataset.sizeChoice;savePreferences();applyPreferences();toast('Tamanho do texto atualizado!')}));
+$('settingsHideValues').addEventListener('change',e=>{preferences.hideValues=e.target.checked;savePreferences();applyPreferences();render();toast(hidden?'Valores principais ocultados.':'Valores principais visíveis.')});
+$('resetPreferences').addEventListener('click',()=>{preferences={accent:'green',font:'dm',fontSize:'normal',hideValues:false};savePreferences();applyPreferences();render();toast('Personalização restaurada ao padrão.')});
+
 const save=()=>{try{localStorage.setItem('meuControleFin_v1',JSON.stringify(data))}catch(e){toast('Não foi possível salvar neste aparelho.')}};
 const toast=t=>$('toast').textContent=t, isMonth=d=>d.slice(0,7)===today().slice(0,7);
 const total=(k,a=data)=>a.filter(x=>x.type===k).reduce((s,x)=>s+x.amount,0);
@@ -57,14 +79,14 @@ function renderReports(){
 }
 $('reportPeriod').addEventListener('change',renderReports);
 
-function page(p){document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();if(p==='add')$('date').value=today();if(p==='cards'){$('purchaseDate').value=today();renderCards()}if(p==='budgets'){renderBudgets();renderRecurring()}if(p==='goals')renderGoals();if(p==='summary')renderCalendar();if(p==='reports')renderReports();window.scrollTo(0,0)}
+function page(p){document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();if(p==='add')$('date').value=today();if(p==='cards'){$('purchaseDate').value=today();renderCards()}if(p==='budgets'){renderBudgets();renderRecurring()}if(p==='goals')renderGoals();if(p==='summary')renderCalendar();if(p==='reports')renderReports();if(p==='settings')applyPreferences();window.scrollTo(0,0)}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>page(b.dataset.page)));
 document.querySelectorAll('.nav-menu [data-page]').forEach(b=>b.addEventListener('click',()=>{const menu=document.querySelector('.nav-more');if(menu)menu.open=false;}));
 function setType(t){type=t;$('incomeType').className='btn '+(t==='income'?'primary':'soft');$('expenseType').className='btn '+(t==='expense'?'primary':'soft');let opts=t==='income'?['Salário','Renda extra','Investimentos','Outros']:['Moradia','Alimentação','Transporte','Saúde','Lazer','Compras','Contas','Cartão de crédito','Outros'];$('category').innerHTML=opts.map(x=>`<option>${x}</option>`).join('')}
 $('incomeType').onclick=()=>setType('income');$('expenseType').onclick=()=>setType('expense');
 $('txForm').addEventListener('submit',e=>{e.preventDefault();let amount=Number($('amount').value);if(!Number.isFinite(amount)||amount<=0){toast('Informe um valor válido.');return}data.push({id:Date.now()+Math.random(),type,amount,description:$('description').value.trim(),category:$('category').value,date:$('date').value});save();e.target.reset();$('date').value=today();toast('Movimentação salva!');page('dashboard')});
 document.addEventListener('click',e=>{let b=e.target.closest('[data-delete]');if(b){const item=data.find(x=>String(x.id)===b.dataset.delete);if(item){trash.push({...item,deletedAt:new Date().toISOString()});data=data.filter(x=>String(x.id)!==b.dataset.delete);saveTrash();save();render();toast('Movimentação enviada para a lixeira.')} }let restore=e.target.closest('[data-trash-restore]');if(restore){const item=trash.find(x=>String(x.id)===restore.dataset.trashRestore);if(item){const {deletedAt,...original}=item;if(data.some(x=>String(x.id)===String(original.id))){original.id=Date.now()+Math.random()}data.push(original);trash=trash.filter(x=>String(x.id)!==restore.dataset.trashRestore);saveTrash();save();render();toast('Movimentação restaurada!')}}let purge=e.target.closest('[data-trash-delete]');if(purge){if(confirm('Excluir esta movimentação permanentemente? Esta ação não pode ser desfeita.')){trash=trash.filter(x=>String(x.id)!==purge.dataset.trashDelete);saveTrash();render();toast('Movimentação excluída permanentemente.')}}let f=e.target.closest('[data-filter]');if(f){filter=f.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.className='btn '+(x===f?'primary':'soft'));render()}});
-$('filterText').addEventListener('input',render);$('toggleBalance').onclick=()=>{hidden=!hidden;$('toggleBalance').textContent=hidden?'⊘':'◉';render()};
+$('filterText').addEventListener('input',render);$('toggleBalance').onclick=()=>{hidden=!hidden;preferences.hideValues=hidden;savePreferences();$('toggleBalance').textContent=hidden?'⊘':'◉';const prefToggle=$('settingsHideValues');if(prefToggle)prefToggle.checked=hidden;render()};
 $('export').onclick=()=>{let csv='Tipo;Descricao;Categoria;Valor;Data\n'+data.map(x=>[x.type==='income'?'Receita':'Despesa',x.description,x.category,x.amount,x.date].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');let a=document.createElement('a'),u=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.href=u;a.download='meu-controle-financeiro.csv';a.click();URL.revokeObjectURL(u);toast('Arquivo exportado.')};
 $('date').value=today();setType('income');render();
 function monthKey(d){return d.slice(0,7)}
@@ -189,9 +211,9 @@ editForm.addEventListener('submit',e=>{
 });
 
 
-const BACKUP_KEYS=['meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_theme'];
+const BACKUP_KEYS=['meuControleFin_preferences_v1','meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_theme'];
 function makeBackup(){
- const payload={};BACKUP_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(raw===null){payload[key]=key==='meuControleFin_theme'?'light':[];}else{payload[key]=JSON.parse(raw)}});
+ const payload={};BACKUP_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(raw===null){payload[key]=key==='meuControleFin_theme'?'light':key==='meuControleFin_preferences_v1'?{accent:'green',font:'dm',fontSize:'normal',hideValues:false}:[];}else{payload[key]=JSON.parse(raw)}});
  return {app:'Meu Controle Financeiro',formatVersion:1,exportedAt:new Date().toISOString(),data:payload};
 }
 $('backupExport').addEventListener('click',()=>{
@@ -210,8 +232,8 @@ $('backupFile').addEventListener('change',async e=>{
   const backup=JSON.parse(await file.text()),payload=backup&&backup.data;
   if(!backup||backup.app!=='Meu Controle Financeiro'||backup.formatVersion!==1||!payload)throw new Error('Este arquivo não é um backup válido do aplicativo.');
   for(const key of BACKUP_KEYS){
-   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'){payload[key]=[];continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
-   if(key==='meuControleFin_theme'){if(!['light','dark'].includes(payload[key]))throw new Error('Tema inválido no backup.');}
+   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'){payload[key]=[];continue;}if(key==='meuControleFin_preferences_v1'){payload[key]={accent:'green',font:'dm',fontSize:'normal',hideValues:false};continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
+   if(key==='meuControleFin_preferences_v1'){if(!payload[key]||typeof payload[key]!=='object'||Array.isArray(payload[key]))throw new Error('Preferências inválidas no backup.');}else if(key==='meuControleFin_theme'){if(!['light','dark'].includes(payload[key]))throw new Error('Tema inválido no backup.');}
    else if(!Array.isArray(payload[key])||payload[key].some(item=>!item||typeof item!=='object'||Array.isArray(item)))throw new Error('Há dados inválidos no backup. Nenhum dado foi alterado.');
   }
   if(!confirm('Restaurar este backup? Os dados atuais deste aplicativo serão substituídos pelos dados do arquivo. Recomendamos baixar um backup atual antes de continuar.'))return;
@@ -221,7 +243,7 @@ $('backupFile').addEventListener('change',async e=>{
   data=payload.meuControleFin_v1;trash=payload.meuControleFin_trash_v1||[];cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;
   budgets=payload.meuControleFin_budgets_v1;recurringBills=payload.meuControleFin_recurring_v1;
   goals=payload.meuControleFin_goals_v1;goalDeposits=payload.meuControleFin_goalDeposits_v1;
-  applyTheme(payload.meuControleFin_theme);render();renderCards();renderBudgets();renderRecurring();renderGoals();renderReports();
+  applyTheme(payload.meuControleFin_theme);preferences=payload.meuControleFin_preferences_v1||preferences;applyPreferences();render();renderCards();renderBudgets();renderRecurring();renderGoals();renderReports();
   toast('Backup restaurado com sucesso!');
  }catch(err){toast(err.message||'Não foi possível ler esse backup.');}
  finally{e.target.value='';}
