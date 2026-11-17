@@ -764,6 +764,76 @@ form#purchaseForm,form#goalForm) .field:focus{
  form#accountForm,form#transferForm,form#cardForm,form#purchaseForm,form#goalForm) .field{transition:none}
 }
 
+
+/* Visual 2.0 — etapa 5/6: gráficos e relatórios */
+#reports>.panel{padding:17px 16px;border-radius:18px}
+#reports>.panel>b,#reports>.panel .row>b{font-size:14px;letter-spacing:-.015em}
+#reports #reportPeriod{min-height:40px;border-radius:11px;padding:8px 11px;font-size:12px}
+#reports #reportRange{font-size:11px;line-height:1.5}
+#reports #reportMonthly,#reports #reportCategories,#reports #reportBalance,
+#reports #smartInsights{min-width:0;overflow:hidden}
+#reports #reportMonthly>*,#reports #reportCategories>*,
+#reports #reportBalance>*,#reports #smartInsights>*{max-width:100%}
+#reports .calendar-legend,#dashboard .dash-legend{
+ display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:14px;
+}
+#reports .calendar-legend span,#dashboard .dash-legend span{
+ display:inline-flex;align-items:center;gap:6px;font-size:11px;
+ color:var(--muted-ink);font-weight:650;
+}
+#reports .calendar-legend i,#dashboard .dash-legend i{
+ display:inline-block;width:9px;height:9px;border-radius:3px;flex-shrink:0;
+}
+#reports .stat{font-size:clamp(19px,5vw,24px);font-variant-numeric:tabular-nums}
+#reports .grid>.panel{min-width:0;padding:15px;border-radius:16px}
+#reports .grid>.panel .stat{overflow-wrap:anywhere}
+#reports .bar{height:9px;overflow:hidden;border-radius:99px;background:var(--line)}
+#reports .bar>div{height:100%;border-radius:inherit;transition:width .35s ease}
+#dashboard .dash-chart-panel{padding:17px 15px;border-radius:18px;overflow:hidden}
+#dashboard .dash-month-chart{min-width:0;overflow:hidden}
+#dashboard .dash-month-chart svg,#reports svg{
+ display:block;max-width:100%;height:auto;
+}
+#dashboard .dash-month-chart text,#reports svg text{
+ font-family:inherit;fill:var(--muted-ink);
+}
+#dashboard .dash-legend{margin-top:12px}
+#dashboard .dash-legend span{font-size:11px}
+#summary .calendar-head{gap:10px;align-items:center}
+#summary .calendar-head button{
+ width:36px;height:36px;min-width:36px;border-radius:11px;
+ border:1px solid var(--line);background:var(--surface);color:var(--ink);
+}
+#summary .calendar-grid{
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;
+}
+#summary .calendar-grid>*{min-width:0;border-radius:10px}
+#summary .calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+#summary .calendar-legend span{
+ display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted-ink)
+}
+#summary .calendar-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+#summary #monthResult{font-size:clamp(20px,5vw,26px);font-weight:850;font-variant-numeric:tabular-nums}
+#summary #calendarDayDetails{min-width:0;overflow-wrap:anywhere}
+#summary #calendarDayDetails>*{max-width:100%}
+#reports #smartInsights>*{border-radius:13px}
+body[data-theme="dark"] #reports>.panel,
+body[data-theme="dark"] #dashboard .dash-chart-panel{
+ box-shadow:0 8px 22px #0002;
+}
+body[data-theme="dark"] #summary .calendar-head button{
+ background:#17271e;border-color:#30483a;color:#f0f6f1;
+}
+@media(max-width:370px){
+ #reports>.panel{padding:14px 12px}
+ #reports .grid>.panel{padding:12px}
+ #dashboard .dash-chart-panel{padding:14px 12px}
+ #summary .calendar-grid{gap:3px}
+}
+@media(prefers-reduced-motion:reduce){
+ #reports .bar>div{transition:none}
+}
+
 </style>
 </head>
 <body>
@@ -843,6 +913,6 @@ form#purchaseForm,form#goalForm) .field:focus{
 <div class="panel"><div class="row"><div><b>Preferências</b><p class="settings-note" style="margin:5px 0 0">Suas escolhas ficam salvas neste aparelho e podem ser alteradas quando quiser.</p></div><button type="button" class="btn soft" id="resetPreferences">Restaurar padrão</button></div></div></section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="accounts"><span>🏦</span><span><b>Contas e carteiras</b><small>Saldos e transferências</small></span></button><button class="nav-menu-item" data-page="assets"><span>🏠</span><span><b>Patrimônio</b><small>Bens, obrigações e patrimônio líquido</small></span></button><button class="nav-menu-item" data-page="investments"><span>📈</span><span><b>Investimentos</b><small>Carteira e rendimentos</small></span></button><button class="nav-menu-item" data-page="commitments"><span>📅</span><span><b>Compromissos</b><small>Pagamentos futuros e avulsos</small></span></button><button class="nav-menu-item" data-page="debts"><span>📉</span><span><b>Dívidas</b><small>Saldo devedor e pagamentos</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 4/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 5/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=34"></script>
 </body></html>
