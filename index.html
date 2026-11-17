@@ -834,6 +834,82 @@ body[data-theme="dark"] #summary .calendar-head button{
  #reports .bar>div{transition:none}
 }
 
+
+/* Visual 2.0 — etapa 6/6: acabamento e consistência final */
+:root{
+ --ui-focus-ring:color-mix(in srgb,var(--brand-500) 24%,transparent);
+ --ui-outline:color-mix(in srgb,var(--brand-500) 55%,transparent);
+}
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{
+ -webkit-tap-highlight-color:transparent;
+ text-rendering:optimizeLegibility;
+}
+button,input,select,textarea{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,a:focus-visible,summary:focus-visible,
+input:focus-visible,select:focus-visible,textarea:focus-visible{
+ outline:3px solid var(--ui-outline);outline-offset:2px;
+}
+.panel,.goal-card,.credit-card,.dash-chart-panel{
+ border-radius:var(--ui-radius,18px);
+}
+.panel{min-width:0}
+.muted{line-height:1.5}
+.btn,.navbtn,.theme-toggle,.settings-choice{
+ transition:background-color .18s ease,border-color .18s ease,
+ color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.btn:active,.navbtn:active,.settings-choice:active{
+ transform:scale(.985);
+}
+.field{accent-color:var(--brand-600)}
+::selection{background:var(--brand-100);color:var(--ink)}
+body[data-theme="dark"]{
+ color-scheme:dark;
+ --ui-focus-ring:color-mix(in srgb,var(--brand-300) 25%,transparent);
+ --ui-outline:color-mix(in srgb,var(--brand-300) 68%,transparent);
+}
+body[data-theme="dark"] .panel,
+body[data-theme="dark"] .goal-card,
+body[data-theme="dark"] .credit-card{
+ border-color:var(--line);
+}
+body[data-theme="dark"] .muted,
+body[data-theme="dark"] small.muted{
+ color:var(--muted-ink);
+}
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea{
+ color-scheme:dark;
+}
+body[data-theme="dark"] select option{
+ background:#17271e;color:#e8f0ea;
+}
+body[data-theme="dark"] ::selection{
+ background:#315d47;color:#fff;
+}
+body[data-theme="dark"] :focus-visible{
+ outline-color:var(--ui-outline);
+}
+@media(hover:hover) and (pointer:fine){
+ .btn:hover,.settings-choice:hover{filter:brightness(1.035)}
+ .panel{transition:box-shadow .18s ease,border-color .18s ease}
+}
+@media(max-width:600px){
+ .panel{max-width:100%}
+ input,select,textarea{max-width:100%}
+ button,.btn{ -webkit-user-select:none;user-select:none}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ *,*::before,*::after{
+  scroll-behavior:auto!important;animation-duration:.01ms!important;
+  animation-iteration-count:1!important;transition-duration:.01ms!important;
+ }
+}
+
 </style>
 </head>
 <body>
@@ -913,6 +989,6 @@ body[data-theme="dark"] #summary .calendar-head button{
 <div class="panel"><div class="row"><div><b>Preferências</b><p class="settings-note" style="margin:5px 0 0">Suas escolhas ficam salvas neste aparelho e podem ser alteradas quando quiser.</p></div><button type="button" class="btn soft" id="resetPreferences">Restaurar padrão</button></div></div></section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="accounts"><span>🏦</span><span><b>Contas e carteiras</b><small>Saldos e transferências</small></span></button><button class="nav-menu-item" data-page="assets"><span>🏠</span><span><b>Patrimônio</b><small>Bens, obrigações e patrimônio líquido</small></span></button><button class="nav-menu-item" data-page="investments"><span>📈</span><span><b>Investimentos</b><small>Carteira e rendimentos</small></span></button><button class="nav-menu-item" data-page="commitments"><span>📅</span><span><b>Compromissos</b><small>Pagamentos futuros e avulsos</small></span></button><button class="nav-menu-item" data-page="debts"><span>📉</span><span><b>Dívidas</b><small>Saldo devedor e pagamentos</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 5/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 6/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=34"></script>
 </body></html>
