@@ -453,6 +453,104 @@ body[data-theme="dark"] #debts .bar{background:var(--brand-100)}
  #budgets .grid,#assets .grid,#investments .grid,#commitments .grid,#debts .grid,#reports .grid{gap:8px}
 }
 
+
+/* Visual 2.0 — etapa 2/6: cards e indicadores financeiros */
+:root{
+ --metric-positive:var(--income,#25865b);
+ --metric-negative:var(--expense,#c65d61);
+ --metric-highlight:var(--brand-700);
+}
+#budgets>.grid>.panel,#assets>.grid>.panel,#investments>.grid>.panel,
+#commitments>.grid>.panel,#debts>.grid>.panel,#reports>.grid>.panel{
+ position:relative;isolation:isolate;overflow:hidden;
+ min-height:108px;padding:17px 16px 15px;
+ border-radius:19px;
+ background:linear-gradient(155deg,var(--surface) 0%,var(--surface) 72%,var(--brand-100) 160%);
+ box-shadow:0 7px 20px rgba(19,59,44,.055);
+}
+#budgets>.grid>.panel:before,#assets>.grid>.panel:before,
+#investments>.grid>.panel:before,#commitments>.grid>.panel:before,
+#debts>.grid>.panel:before,#reports>.grid>.panel:before{
+ content:"";position:absolute;z-index:-1;left:0;top:15px;bottom:15px;width:3px;
+ border-radius:0 5px 5px 0;background:var(--brand-500);opacity:.8;
+}
+#budgets>.grid>.panel>small:first-child,#assets>.grid>.panel>small:first-child,
+#investments>.grid>.panel>small:first-child,#commitments>.grid>.panel>small:first-child,
+#debts>.grid>.panel>small:first-child,#reports>.grid>.panel>div:first-child{
+ color:var(--muted-ink);font-size:11px;font-weight:700;letter-spacing:.025em;
+ line-height:1.4;
+}
+#budgets>.grid>.panel .stat,#assets>.grid>.panel .stat,
+#investments>.grid>.panel .stat,#commitments>.grid>.panel .stat,
+#debts>.grid>.panel .stat,#reports>.grid>.panel .stat{
+ display:block;margin-top:9px;font-size:clamp(19px,5.2vw,24px);
+ font-weight:800;line-height:1.18;letter-spacing:-.045em;
+ font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+#investments>.grid>.panel:nth-child(3) .stat,
+#debts>.grid>.panel:nth-child(2) .stat,
+#commitments>.grid>.panel:nth-child(2) .stat{color:var(--metric-positive)}
+#commitments>.grid>.panel:first-child .stat,
+#debts>.grid>.panel:first-child .stat{color:var(--metric-highlight)}
+#assets>.grid>.panel:nth-child(2) .stat{color:var(--metric-negative)}
+#investments>.grid>.panel>small:last-child{
+ display:inline-flex;margin-top:7px;padding:4px 8px;border-radius:99px;
+ background:var(--brand-100);color:var(--brand-700);font-size:11px;font-weight:800;
+}
+#dashboard>.grid>.panel,#dashboard .dash-kpis>.panel,
+#reports>.grid>.panel,#summary>.panel:has(#monthResult){
+ position:relative;overflow:hidden;
+}
+#dashboard>.grid>.panel:before,#dashboard .dash-kpis>.panel:before,
+#reports>.grid>.panel:before{
+ content:"";position:absolute;top:0;left:16px;right:16px;height:3px;
+ border-radius:0 0 6px 6px;background:var(--brand-500);opacity:.75;
+}
+#dashboard>.grid>.panel:first-child:before{background:var(--metric-positive)}
+#dashboard>.grid>.panel:last-child:before{background:var(--metric-negative)}
+#dashboard .dash-kpi{font-size:clamp(20px,5.5vw,25px);font-weight:800;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+#dashboard .dash-hint{font-size:11px;line-height:1.4}
+#summary #monthResult{font-variant-numeric:tabular-nums;letter-spacing:-.045em}
+#accounts>.panel:first-of-type{
+ background:linear-gradient(140deg,var(--brand-950),var(--brand-700));
+ color:#fff;border:0;box-shadow:0 10px 24px rgba(16,43,34,.16);
+}
+#accounts>.panel:first-of-type .muted,
+#accounts>.panel:first-of-type small{color:#d2e6dc}
+#accounts>.panel:first-of-type .stat{font-size:clamp(25px,7vw,31px);font-weight:800;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+#assets>.panel:first-of-type{
+ background:linear-gradient(140deg,var(--brand-950),var(--brand-700));
+ color:#fff;border:0;box-shadow:0 10px 24px rgba(16,43,34,.16);
+}
+#assets>.panel:first-of-type .muted,#assets>.panel:first-of-type small{color:#d2e6dc}
+#assets>.panel:first-of-type .stat{font-size:clamp(27px,7vw,33px);font-weight:800;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+body[data-theme="dark"] #budgets>.grid>.panel,
+body[data-theme="dark"] #assets>.grid>.panel,
+body[data-theme="dark"] #investments>.grid>.panel,
+body[data-theme="dark"] #commitments>.grid>.panel,
+body[data-theme="dark"] #debts>.grid>.panel,
+body[data-theme="dark"] #reports>.grid>.panel{
+ background:linear-gradient(155deg,var(--surface) 0%,var(--surface) 72%,#263c2e 160%);
+ box-shadow:0 7px 20px #0003;
+}
+body[data-theme="dark"] #accounts>.panel:first-of-type,
+body[data-theme="dark"] #assets>.panel:first-of-type{
+ background:linear-gradient(140deg,#10291f,#24563e);
+}
+@media(max-width:370px){
+ #budgets>.grid>.panel,#assets>.grid>.panel,#investments>.grid>.panel,
+ #commitments>.grid>.panel,#debts>.grid>.panel,#reports>.grid>.panel{
+  min-height:100px;padding:14px 12px 13px;border-radius:16px;
+ }
+ #budgets>.grid>.panel .stat,#assets>.grid>.panel .stat,
+ #investments>.grid>.panel .stat,#commitments>.grid>.panel .stat,
+ #debts>.grid>.panel .stat,#reports>.grid>.panel .stat{font-size:18px}
+}
+@media(prefers-reduced-motion:reduce){
+ #budgets>.grid>.panel,#assets>.grid>.panel,#investments>.grid>.panel,
+ #commitments>.grid>.panel,#debts>.grid>.panel,#reports>.grid>.panel{transition:none}
+}
+
 </style>
 </head>
 <body>
@@ -532,6 +630,6 @@ body[data-theme="dark"] #debts .bar{background:var(--brand-100)}
 <div class="panel"><div class="row"><div><b>Preferências</b><p class="settings-note" style="margin:5px 0 0">Suas escolhas ficam salvas neste aparelho e podem ser alteradas quando quiser.</p></div><button type="button" class="btn soft" id="resetPreferences">Restaurar padrão</button></div></div></section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="accounts"><span>🏦</span><span><b>Contas e carteiras</b><small>Saldos e transferências</small></span></button><button class="nav-menu-item" data-page="assets"><span>🏠</span><span><b>Patrimônio</b><small>Bens, obrigações e patrimônio líquido</small></span></button><button class="nav-menu-item" data-page="investments"><span>📈</span><span><b>Investimentos</b><small>Carteira e rendimentos</small></span></button><button class="nav-menu-item" data-page="commitments"><span>📅</span><span><b>Compromissos</b><small>Pagamentos futuros e avulsos</small></span></button><button class="nav-menu-item" data-page="debts"><span>📉</span><span><b>Dívidas</b><small>Saldo devedor e pagamentos</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 1/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 2/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=34"></script>
 </body></html>
