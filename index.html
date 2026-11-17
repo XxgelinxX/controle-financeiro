@@ -49,6 +49,24 @@ body[data-theme="dark"] .toast{color:#9ed9b7}
 .card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 @media(min-width:430px){.cards-grid{grid-template-columns:1fr 1fr}}
 body[data-theme="dark"] .credit-card{background:linear-gradient(135deg,#203d30,#315d47)}
+
+.calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.calendar-head button{border:1px solid #dce8e0;background:#edf3ef;color:#245c48;border-radius:10px;padding:8px 12px;font-weight:700}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center}
+.calendar-weekday{font-size:11px;color:#718078;font-weight:700;padding:5px 0}
+.calendar-day{position:relative;min-height:42px;border:1px solid transparent;border-radius:10px;background:transparent;color:inherit;font-size:13px}
+.calendar-day.selected{background:#245c48;color:#fff}
+.calendar-day.has-bill{border-color:#d49a3a}
+.calendar-day.all-paid{border-color:#55b98b}
+.calendar-day .calendar-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#d49a3a;bottom:4px;left:calc(50% - 3px)}
+.calendar-day.all-paid .calendar-dot{background:#55b98b}
+.calendar-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#718078;margin-top:12px}
+.calendar-legend span{display:flex;align-items:center;gap:5px}
+.calendar-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;background:#d49a3a}
+.calendar-legend .paid-dot{background:#55b98b}
+body[data-theme="dark"] .calendar-head button{background:#26382e;color:#cce3d5;border-color:#3a5043}
+body[data-theme="dark"] .calendar-weekday{color:#a8b9af}
+body[data-theme="dark"] .calendar-day.selected{background:#34765a}
 </style>
 </head>
 <body>
@@ -73,6 +91,10 @@ body[data-theme="dark"] .credit-card{background:linear-gradient(135deg,#203d30,#
 </section>
 <section id="recurring" class="page"><h2>Contas fixas</h2><p class="muted" style="font-size:13px">Cadastre contas que se repetem todo mês e acompanhe os pagamentos.</p>
  <div class="panel"><b>Adicionar conta recorrente</b><form id="recurringForm" style="margin-top:14px"><label>Nome da conta<input class="field" id="recurringName" placeholder="Ex.: Internet, aluguel..." maxlength="55" required></label><label>Valor (R$)<input class="field" id="recurringAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><div class="grid"><label>Categoria<select class="field" id="recurringCategory"><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Compras</option><option>Contas</option><option>Outros</option></select></label><label>Dia do vencimento<input class="field" id="recurringDue" type="number" min="1" max="31" placeholder="Ex.: 10" required></label></div><button class="btn primary wide" type="submit">Salvar conta</button></form></div>
+ 
+ <div class="panel" style="margin-top:14px"><div class="calendar-head"><button type="button" id="calendarPrev" aria-label="Mês anterior">‹</button><b id="calendarTitle"></b><button type="button" id="calendarNext" aria-label="Próximo mês">›</button></div><div id="calendarGrid" class="calendar-grid"></div><div class="calendar-legend"><span><i></i>Conta pendente</span><span><i class="paid-dot"></i>Conta paga</span></div></div>
+ <div class="panel"><b id="calendarSelectedTitle">Contas do dia</b><div id="calendarDayDetails" style="margin-top:8px"><span class="muted">Selecione um dia do calendário.</span></div></div>
+
  <div class="row" style="margin:18px 2px 8px"><b>Contas deste mês</b><small class="muted" id="recurringMonth"></small></div><div id="recurringList"></div>
 </section>
 <section id="cards" class="page"><h2>Cartões de crédito</h2><p class="muted" style="font-size:13px">Acompanhe limites, compras e faturas sem misturar com seu saldo.</p>
@@ -82,6 +104,6 @@ body[data-theme="dark"] .credit-card{background:linear-gradient(135deg,#203d30,#
 </section>
 </main>
 <nav><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Histórico</button><button class="navbtn" data-page="add"><span>＋</span>Adicionar</button><button class="navbtn" data-page="summary"><span>▥</span>Resumo</button><button class="navbtn" data-page="budgets"><span>🎯</span>Limites</button><button class="navbtn" data-page="recurring"><span>📅</span>Contas</button><button class="navbtn" data-page="cards"><span>💳</span>Cartões</button></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 4.0</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
-<script src="app.js?v=7"></script>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 5.0</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<script src="app.js?v=8"></script>
 </body></html>
