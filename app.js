@@ -9,7 +9,7 @@ let cards=[],cardPurchases=[];
 try{cards=JSON.parse(localStorage.getItem('meuControleFin_cards_v1')||'[]');if(!Array.isArray(cards))cards=[]}catch(e){cards=[]}
 try{cardPurchases=JSON.parse(localStorage.getItem('meuControleFin_cardPurchases_v1')||'[]');if(!Array.isArray(cardPurchases))cardPurchases=[]}catch(e){cardPurchases=[]}
 const saveCards=()=>{try{localStorage.setItem('meuControleFin_cards_v1',JSON.stringify(cards));localStorage.setItem('meuControleFin_cardPurchases_v1',JSON.stringify(cardPurchases))}catch(e){toast('Não foi possível salvar os cartões neste aparelho.')}};
-const applyTheme=theme=>{document.body.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀️ Claro':'🌙 Escuro';$('themeToggle').setAttribute('aria-label',theme==='dark'?'Ativar modo claro':'Ativar modo escuro');document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#111a16':'#193f32'};
+const applyTheme=theme=>{document.body.dataset.theme=theme;$('themeToggle').textContent=theme==='dark'?'☀️ Claro':'🌙 Escuro';$('themeToggle').setAttribute('aria-label',theme==='dark'?'Ativar modo claro':'Ativar modo escuro');document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#101a14':'#123b2e'};
 let savedTheme='light';try{savedTheme=localStorage.getItem('meuControleFin_theme')||'light'}catch(e){}
 applyTheme(savedTheme==='dark'?'dark':'light');
 $('themeToggle').addEventListener('click',()=>{const next=document.body.dataset.theme==='dark'?'light':'dark';applyTheme(next);try{localStorage.setItem('meuControleFin_theme',next)}catch(e){}});
