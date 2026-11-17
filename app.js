@@ -258,6 +258,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-budget-del
 let recurringBills=[];try{recurringBills=JSON.parse(localStorage.getItem('meuControleFin_recurring_v1')||'[]');if(!Array.isArray(recurringBills))recurringBills=[]}catch(e){recurringBills=[]}
 const saveRecurring=()=>{try{localStorage.setItem('meuControleFin_recurring_v1',JSON.stringify(recurringBills))}catch(e){toast('Não foi possível salvar as contas.')}};
 $('calendarPrev').addEventListener('click',()=>{const [y,m]=calendarMonth.split('-').map(Number),d=new Date(y,m-2,1);calendarMonth=monthKey(todayFromDate(d));calendarSelected=calendarMonth+'-01';renderCalendar()});
+ $('calendarToday').addEventListener('click',()=>{calendarMonth=today().slice(0,7);calendarSelected=today();renderCalendar()});
 $('calendarNext').addEventListener('click',()=>{const [y,m]=calendarMonth.split('-').map(Number),d=new Date(y,m,1);calendarMonth=monthKey(todayFromDate(d));calendarSelected=calendarMonth+'-01';renderCalendar()});
 document.addEventListener('click',e=>{const day=e.target.closest('[data-calendar-day]');if(day){calendarSelected=day.dataset.calendarDay;renderCalendar()}});
 function dueDateForMonth(day,month){const [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate();return `${y}-${String(m).padStart(2,'0')}-${String(Math.min(day,last)).padStart(2,'0')}`}
@@ -306,7 +307,7 @@ function calendarEventsForDate(date){
  goals.filter(g=>g.deadline).forEach(g=>add({id:'goal-deadline-'+g.id,sourceId:g.id,kind:'goal',date:g.deadline,title:'Prazo da meta · '+g.name,subtitle:'Meta financeira',amount:null,status:goalSaved(g.id)>=Number(g.target||0)?'done':'pending',icon:'🏁'}));
  goalDeposits.forEach(d=>add({id:'goal-deposit-'+d.id,sourceId:d.id,kind:'goalDeposit',date:d.date,title:'Depósito · '+(goals.find(g=>g.id===d.goalId)?.name||'Meta'),subtitle:d.note||'Depósito em meta',amount:Number(d.amount||0),status:'done',icon:'🐷'}));
  transfers.forEach(t=>add({id:'transfer-'+t.id,sourceId:t.id,kind:'transfer',date:t.date,title:'Transferência entre contas',subtitle:t.note||'Movimentação interna',amount:Number(t.amount||0),status:'done',icon:'⇄'}));
- const order={pending:0,done:1,paid:2};return events.sort((a,b)=>order[a.status]-order[b.status]||a.title.localeCompare(b.title,'pt-BR'));
+ const priority=e=>e.status==='pending'?(e.date<today()?0:e.date===today()?1:2):e.status==='done'?3:4;return events.sort((a,b)=>priority(a)-priority(b)||a.date.localeCompare(b.date)||a.title.localeCompare(b.title,'pt-BR'));
 }
 function calendarEventStatus(event){if(event.status==='paid')return {label:'Pago',className:'paid'};if(event.status==='done')return {label:'Registrado',className:'done'};if(event.date<today())return {label:'Atrasado',className:'overdue'};if(event.date===today())return {label:'Vence hoje',className:'today'};return {label:'Pendente',className:'pending'}}
 function renderCalendar(){
