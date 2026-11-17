@@ -3,6 +3,8 @@ const $=id=>document.getElementById(id), money=n=>n.toLocaleString('pt-BR',{styl
 const today=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 let data=[];try{data=JSON.parse(localStorage.getItem('meuControleFin_v1')||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
 let type='income',filter='all',hidden=false;
+let trash=[];try{trash=JSON.parse(localStorage.getItem('meuControleFin_trash_v1')||'[]');if(!Array.isArray(trash))trash=[]}catch(e){trash=[]}
+const saveTrash=()=>{try{localStorage.setItem('meuControleFin_trash_v1',JSON.stringify(trash))}catch(e){toast('Não foi possível salvar a lixeira.')}};
 let cards=[],cardPurchases=[];
 try{cards=JSON.parse(localStorage.getItem('meuControleFin_cards_v1')||'[]');if(!Array.isArray(cards))cards=[]}catch(e){cards=[]}
 try{cardPurchases=JSON.parse(localStorage.getItem('meuControleFin_cardPurchases_v1')||'[]');if(!Array.isArray(cardPurchases))cardPurchases=[]}catch(e){cardPurchases=[]}
@@ -18,7 +20,9 @@ const sorted=a=>a.slice().sort((x,y)=>y.date.localeCompare(x.date)||y.id-x.id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function row(x){return `<div class="tx"><div class="dot">${x.type==='income'?'↗':'↙'}</div><div class="txmain"><strong>${esc(x.description)}</strong><small>${esc(x.category)} · ${x.date.split('-').reverse().join('/')}</small></div><div><div class="txval" style="color:${x.type==='income'?'#26956a':'#c75e5e'}">${x.type==='income'?'+':'−'} ${money(x.amount)}</div><button class="del" data-tx-edit="${x.id}">Editar</button><button class="del" data-delete="${x.id}">Excluir</button></div></div>`}
 function cats(kind,id,mi){let o={};mi.filter(x=>x.type===kind).forEach(x=>o[x.category]=(o[x.category]||0)+x.amount);let a=Object.entries(o).sort((x,y)=>y[1]-x[1]);$(id).innerHTML=a.length?a.map(([k,v])=>`<div style="margin-bottom:13px"><div class="row"><span>${esc(k)}</span><b>${money(v)}</b></div><div class="bar"><div style="width:${v/Math.max(1,total(kind,mi))*100}%;background:${kind==='income'?'#55b98b':'#df7777'}"></div></div></div>`).join(''):'Nenhum lançamento neste mês.'}
+function renderTrash(){const el=$('trashList');if(!el)return;el.innerHTML=sorted(trash).map(x=>`<div class="tx"><div class="dot">🗑️</div><div class="txmain"><strong>${esc(x.description)}</strong><small>${esc(x.category)} · ${x.date.split('-').reverse().join('/')} · Excluída em ${new Date(x.deletedAt||Date.now()).toLocaleDateString('pt-BR')}</small></div><div class="txval">${money(x.amount)}<button class="del" data-trash-restore="${x.id}">Restaurar</button><button class="del" data-trash-delete="${x.id}">Excluir de vez</button></div></div>`).join('')||'<div class="muted">A lixeira está vazia.</div>';}
 function render(){
+ renderTrash();
  let mi=data.filter(x=>isMonth(x.date)),inc=total('income'),exp=total('expense'),im=total('income',mi),em=total('expense',mi);
  $('balance').textContent=hidden?'••••••':money(inc-exp);$('income').textContent=hidden?'••••••':money(inc);$('expense').textContent=hidden?'••••••':money(exp);
  $('monthLabel').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
@@ -55,7 +59,7 @@ document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',(
 function setType(t){type=t;$('incomeType').className='btn '+(t==='income'?'primary':'soft');$('expenseType').className='btn '+(t==='expense'?'primary':'soft');let opts=t==='income'?['Salário','Renda extra','Investimentos','Outros']:['Moradia','Alimentação','Transporte','Saúde','Lazer','Compras','Contas','Cartão de crédito','Outros'];$('category').innerHTML=opts.map(x=>`<option>${x}</option>`).join('')}
 $('incomeType').onclick=()=>setType('income');$('expenseType').onclick=()=>setType('expense');
 $('txForm').addEventListener('submit',e=>{e.preventDefault();let amount=Number($('amount').value);if(!Number.isFinite(amount)||amount<=0){toast('Informe um valor válido.');return}data.push({id:Date.now()+Math.random(),type,amount,description:$('description').value.trim(),category:$('category').value,date:$('date').value});save();e.target.reset();$('date').value=today();toast('Movimentação salva!');page('dashboard')});
-document.addEventListener('click',e=>{let b=e.target.closest('[data-delete]');if(b){data=data.filter(x=>String(x.id)!==b.dataset.delete);save();render();toast('Movimentação excluída.')}let f=e.target.closest('[data-filter]');if(f){filter=f.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.className='btn '+(x===f?'primary':'soft'));render()}});
+document.addEventListener('click',e=>{let b=e.target.closest('[data-delete]');if(b){const item=data.find(x=>String(x.id)===b.dataset.delete);if(item){trash.push({...item,deletedAt:new Date().toISOString()});data=data.filter(x=>String(x.id)!==b.dataset.delete);saveTrash();save();render();toast('Movimentação enviada para a lixeira.')} }let restore=e.target.closest('[data-trash-restore]');if(restore){const item=trash.find(x=>String(x.id)===restore.dataset.trashRestore);if(item){const {deletedAt,...original}=item;if(data.some(x=>String(x.id)===String(original.id))){original.id=Date.now()+Math.random()}data.push(original);trash=trash.filter(x=>String(x.id)!==restore.dataset.trashRestore);saveTrash();save();render();toast('Movimentação restaurada!')}}let purge=e.target.closest('[data-trash-delete]');if(purge){if(confirm('Excluir esta movimentação permanentemente? Esta ação não pode ser desfeita.')){trash=trash.filter(x=>String(x.id)!==purge.dataset.trashDelete);saveTrash();render();toast('Movimentação excluída permanentemente.')}}let f=e.target.closest('[data-filter]');if(f){filter=f.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.className='btn '+(x===f?'primary':'soft'));render()}});
 $('filterText').addEventListener('input',render);$('toggleBalance').onclick=()=>{hidden=!hidden;$('toggleBalance').textContent=hidden?'⊘':'◉';render()};
 $('export').onclick=()=>{let csv='Tipo;Descricao;Categoria;Valor;Data\n'+data.map(x=>[x.type==='income'?'Receita':'Despesa',x.description,x.category,x.amount,x.date].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');let a=document.createElement('a'),u=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.href=u;a.download='meu-controle-financeiro.csv';a.click();URL.revokeObjectURL(u);toast('Arquivo exportado.')};
 $('date').value=today();setType('income');render();
@@ -149,7 +153,7 @@ document.addEventListener('click',e=>{
 });
 
 
-const BACKUP_KEYS=['meuControleFin_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_theme'];
+const BACKUP_KEYS=['meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_theme'];
 function makeBackup(){
  const payload={};BACKUP_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(raw===null){payload[key]=key==='meuControleFin_theme'?'light':[];}else{payload[key]=JSON.parse(raw)}});
  return {app:'Meu Controle Financeiro',formatVersion:1,exportedAt:new Date().toISOString(),data:payload};
@@ -170,7 +174,7 @@ $('backupFile').addEventListener('change',async e=>{
   const backup=JSON.parse(await file.text()),payload=backup&&backup.data;
   if(!backup||backup.app!=='Meu Controle Financeiro'||backup.formatVersion!==1||!payload)throw new Error('Este arquivo não é um backup válido do aplicativo.');
   for(const key of BACKUP_KEYS){
-   if(!Object.prototype.hasOwnProperty.call(payload,key))throw new Error('O backup está incompleto. Nenhum dado foi alterado.');
+   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'){payload[key]=[];continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
    if(key==='meuControleFin_theme'){if(!['light','dark'].includes(payload[key]))throw new Error('Tema inválido no backup.');}
    else if(!Array.isArray(payload[key])||payload[key].some(item=>!item||typeof item!=='object'||Array.isArray(item)))throw new Error('Há dados inválidos no backup. Nenhum dado foi alterado.');
   }
@@ -178,7 +182,7 @@ $('backupFile').addEventListener('change',async e=>{
   const previous={};BACKUP_KEYS.forEach(key=>previous[key]=localStorage.getItem(key));
   try{BACKUP_KEYS.forEach(key=>localStorage.setItem(key,JSON.stringify(payload[key])));}
   catch(saveError){BACKUP_KEYS.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});throw new Error('Não foi possível restaurar. Seus dados anteriores foram mantidos.');}
-  data=payload.meuControleFin_v1;cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;
+  data=payload.meuControleFin_v1;trash=payload.meuControleFin_trash_v1||[];cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;
   budgets=payload.meuControleFin_budgets_v1;recurringBills=payload.meuControleFin_recurring_v1;
   goals=payload.meuControleFin_goals_v1;goalDeposits=payload.meuControleFin_goalDeposits_v1;
   applyTheme(payload.meuControleFin_theme);render();renderCards();renderBudgets();renderRecurring();renderGoals();renderReports();
