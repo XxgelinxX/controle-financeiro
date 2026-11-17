@@ -111,7 +111,30 @@ $('purchaseDate').value=today();renderCards();
 /* Limites mensais por categoria */
 let budgets=[];try{budgets=JSON.parse(localStorage.getItem('meuControleFin_budgets_v1')||'[]');if(!Array.isArray(budgets))budgets=[]}catch(e){budgets=[]}
 const saveBudgets=()=>{try{localStorage.setItem('meuControleFin_budgets_v1',JSON.stringify(budgets))}catch(e){toast('Não foi possível salvar os limites.')}};
+/* Planejamento mensal: metas gerais e projeção, separado dos lançamentos existentes */
+let monthlyPlans=[];try{monthlyPlans=JSON.parse(localStorage.getItem('meuControleFin_monthlyPlans_v1')||'[]');if(!Array.isArray(monthlyPlans))monthlyPlans=[]}catch(e){monthlyPlans=[]}
+const saveMonthlyPlans=()=>{try{localStorage.setItem('meuControleFin_monthlyPlans_v1',JSON.stringify(monthlyPlans))}catch(e){toast('Não foi possível salvar o planejamento.')}};
+function renderMonthlyPlan(){
+ const month=$('planMonth').value||today().slice(0,7),plan=monthlyPlans.find(p=>p.month===month),items=data.filter(x=>x.date&&x.date.slice(0,7)===month),income=total('income',items),expense=total('expense',items);
+ const [year,mon]=month.split('-').map(Number),days=new Date(year,mon,0).getDate(),elapsed=month===today().slice(0,7)?new Date().getDate():month<today().slice(0,7)?days:0;
+ const projectedExpense=elapsed>0?expense/elapsed*days:0,projectedIncome=elapsed>0?income/elapsed*days:0;
+ $('planIncome').value=plan?.incomeTarget??'';$('planBudget').value=plan?.expenseTarget??'';$('planSaving').value=plan?.savingTarget??'';
+ $('planActualIncome').textContent=money(income);$('planActualExpense').textContent=money(expense);
+ $('planAvailable').textContent=plan&&Number(plan.expenseTarget)>0?money(Number(plan.expenseTarget)-expense):'Defina um orçamento';
+ $('planAvailable').style.color=plan&&Number(plan.expenseTarget)-expense<0?'#c75e5e':'var(--brand-600)';
+ $('planProjected').textContent=elapsed>0?money(projectedIncome-projectedExpense):'Aguardando movimentações';
+ $('planProjectedHint').textContent=elapsed>0?'Projeção pelo ritmo diário atual':'A projeção aparece após o início do mês';
+ const budget=Number(plan?.expenseTarget)||0,pct=budget>0?expense/budget*100:0;
+ $('planProgress').style.width=Math.min(100,pct)+'%';$('planProgressLabel').textContent=budget>0?Math.round(pct)+'% do orçamento utilizado':'Cadastre um orçamento para acompanhar';
+ $('planSavingStatus').textContent=plan&&Number(plan.savingTarget)>0?(income-expense>=Number(plan.savingTarget)?'Meta de economia alcançada!':'Faltam '+money(Math.max(0,Number(plan.savingTarget)-(income-expense)))+' para a meta'):'Defina uma meta de economia';
+ $('planDelete').style.display=plan?'':'none';
+}
+$('planMonth').value=today().slice(0,7);
+$('planMonth').addEventListener('change',renderMonthlyPlan);
+$('monthlyPlanForm').addEventListener('submit',e=>{e.preventDefault();const month=$('planMonth').value,income=Number($('planIncome').value||0),expense=Number($('planBudget').value||0),saving=Number($('planSaving').value||0);if(!/^\\d{4}-\\d{2}$/.test(month)||[income,expense,saving].some(n=>!Number.isFinite(n)||n<0)||!(income||expense||saving)){toast('Informe pelo menos uma meta ou orçamento válido.');return}let plan=monthlyPlans.find(p=>p.month===month);if(plan)Object.assign(plan,{incomeTarget:income,expenseTarget:expense,savingTarget:saving});else monthlyPlans.push({month,incomeTarget:income,expenseTarget:expense,savingTarget:saving});saveMonthlyPlans();renderMonthlyPlan();toast('Planejamento mensal salvo!')});
+$('planDelete').addEventListener('click',()=>{const month=$('planMonth').value;if(!monthlyPlans.some(p=>p.month===month))return;if(!confirm('Excluir o planejamento deste mês? Os lançamentos e limites por categoria serão mantidos.'))return;monthlyPlans=monthlyPlans.filter(p=>p.month!==month);saveMonthlyPlans();renderMonthlyPlan();toast('Planejamento removido.')});
 function renderBudgets(){
+ renderMonthlyPlan();
  const m=today().slice(0,7);$('budgetMonth').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
  $('budgetsList').innerHTML=budgets.map(b=>{const spent=data.filter(x=>x.type==='expense'&&x.category===b.category&&x.date.slice(0,7)===m).reduce((s,x)=>s+x.amount,0);const pct=b.limit>0?spent/b.limit*100:0,color=pct>=100?'#d65f5f':pct>=80?'#d49a3a':'#55b98b';return `<div class="panel"><div class="row"><b>${esc(b.category)}</b><button class="del" data-budget-edit="${esc(b.category)}">Editar</button><button class="del" data-budget-delete="${esc(b.category)}">Remover</button></div><div class="row" style="font-size:13px;margin-top:10px"><span class="muted">Gasto: ${money(spent)}</span><b>Limite: ${money(b.limit)}</b></div><div class="bar"><div style="width:${Math.min(100,pct)}%;background:${color}"></div></div><div class="row"><small class="muted">${pct>=100?'Limite ultrapassado':pct>=80?'Atenção: perto do limite':'Ainda dentro do limite'}</small><small><b>${Math.max(0,b.limit-spent).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</b> restantes</small></div></div>`}).join('')||'<div class="panel muted">Você ainda não definiu nenhum limite.</div>';
 }
@@ -211,7 +234,7 @@ editForm.addEventListener('submit',e=>{
 });
 
 
-const BACKUP_KEYS=['meuControleFin_preferences_v1','meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_theme'];
+const BACKUP_KEYS=['meuControleFin_preferences_v1','meuControleFin_v1','meuControleFin_trash_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_monthlyPlans_v1','meuControleFin_theme'];
 function makeBackup(){
  const payload={};BACKUP_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(raw===null){payload[key]=key==='meuControleFin_theme'?'light':key==='meuControleFin_preferences_v1'?{accent:'green',font:'dm',fontSize:'normal',hideValues:false}:[];}else{payload[key]=JSON.parse(raw)}});
  return {app:'Meu Controle Financeiro',formatVersion:1,exportedAt:new Date().toISOString(),data:payload};
@@ -232,7 +255,7 @@ $('backupFile').addEventListener('change',async e=>{
   const backup=JSON.parse(await file.text()),payload=backup&&backup.data;
   if(!backup||backup.app!=='Meu Controle Financeiro'||backup.formatVersion!==1||!payload)throw new Error('Este arquivo não é um backup válido do aplicativo.');
   for(const key of BACKUP_KEYS){
-   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'){payload[key]=[];continue;}if(key==='meuControleFin_preferences_v1'){payload[key]={accent:'green',font:'dm',fontSize:'normal',hideValues:false};continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
+   if(!Object.prototype.hasOwnProperty.call(payload,key)){if(key==='meuControleFin_trash_v1'||key==='meuControleFin_monthlyPlans_v1'){payload[key]=[];continue;}if(key==='meuControleFin_preferences_v1'){payload[key]={accent:'green',font:'dm',fontSize:'normal',hideValues:false};continue;}throw new Error('O backup está incompleto. Nenhum dado foi alterado.');}
    if(key==='meuControleFin_preferences_v1'){if(!payload[key]||typeof payload[key]!=='object'||Array.isArray(payload[key]))throw new Error('Preferências inválidas no backup.');}else if(key==='meuControleFin_theme'){if(!['light','dark'].includes(payload[key]))throw new Error('Tema inválido no backup.');}
    else if(!Array.isArray(payload[key])||payload[key].some(item=>!item||typeof item!=='object'||Array.isArray(item)))throw new Error('Há dados inválidos no backup. Nenhum dado foi alterado.');
   }
@@ -242,8 +265,8 @@ $('backupFile').addEventListener('change',async e=>{
   catch(saveError){BACKUP_KEYS.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});throw new Error('Não foi possível restaurar. Seus dados anteriores foram mantidos.');}
   data=payload.meuControleFin_v1;trash=payload.meuControleFin_trash_v1||[];cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;
   budgets=payload.meuControleFin_budgets_v1;recurringBills=payload.meuControleFin_recurring_v1;
-  goals=payload.meuControleFin_goals_v1;goalDeposits=payload.meuControleFin_goalDeposits_v1;
-  applyTheme(payload.meuControleFin_theme);preferences=payload.meuControleFin_preferences_v1||preferences;applyPreferences();render();renderCards();renderBudgets();renderRecurring();renderGoals();renderReports();
+  goals=payload.meuControleFin_goals_v1;goalDeposits=payload.meuControleFin_goalDeposits_v1;monthlyPlans=payload.meuControleFin_monthlyPlans_v1||[];
+  applyTheme(payload.meuControleFin_theme);preferences=payload.meuControleFin_preferences_v1||preferences;applyPreferences();render();renderCards();renderBudgets();renderMonthlyPlan();renderRecurring();renderGoals();renderReports();
   toast('Backup restaurado com sucesso!');
  }catch(err){toast(err.message||'Não foi possível ler esse backup.');}
  finally{e.target.value='';}
