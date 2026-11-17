@@ -551,6 +551,127 @@ body[data-theme="dark"] #assets>.panel:first-of-type{
  #commitments>.grid>.panel,#debts>.grid>.panel,#reports>.grid>.panel{transition:none}
 }
 
+
+/* Visual 2.0 — etapa 3/6: listas e registros */
+#investmentsList,#commitmentsList,#debtsList,#accountsList,#assetsList,
+#liabilitiesList,#transfersList,#debtPaymentsList,#cardBills,
+#cardFutureInstallments,#cardPurchases,#cardsList,#goalsList,#goalDeposits,
+#budgetsList,#recurringList,#recent,#transactionsList{
+ min-width:0;
+}
+#investmentsList>*,#commitmentsList>*,#debtsList>*,#accountsList>*,
+#assetsList>*,#liabilitiesList>*,#transfersList>*,#debtPaymentsList>*,
+#cardBills>*,#cardFutureInstallments>*,#cardPurchases>*,#cardsList>*,
+#goalsList>*,#goalDeposits>*,#budgetsList>*,#recurringList>*{
+ min-width:0;overflow-wrap:anywhere;
+}
+#investmentsList .tx,#commitmentsList .tx,#debtsList .tx,
+#accountsList .tx,#assetsList .tx,#liabilitiesList .tx,
+#transfersList .tx,#debtPaymentsList .tx,#cardPurchases .tx,
+#goalDeposits .tx,#recurringList .tx{
+ padding:13px 0;gap:10px;border-bottom:1px solid var(--line);
+}
+#investmentsList .tx:last-child,#commitmentsList .tx:last-child,
+#debtsList .tx:last-child,#accountsList .tx:last-child,
+#assetsList .tx:last-child,#liabilitiesList .tx:last-child,
+#transfersList .tx:last-child,#debtPaymentsList .tx:last-child,
+#cardPurchases .tx:last-child,#goalDeposits .tx:last-child,
+#recurringList .tx:last-child{border-bottom:0}
+#investmentsList .txmain,#commitmentsList .txmain,#debtsList .txmain,
+#accountsList .txmain,#assetsList .txmain,#liabilitiesList .txmain,
+#transfersList .txmain,#debtPaymentsList .txmain,#cardPurchases .txmain{
+ min-width:0;flex:1;
+}
+#investmentsList .txmain strong,#commitmentsList .txmain strong,
+#debtsList .txmain strong,#accountsList .txmain strong,
+#assetsList .txmain strong,#liabilitiesList .txmain strong,
+#transfersList .txmain strong,#debtPaymentsList .txmain strong,
+#cardPurchases .txmain strong{
+ font-size:13px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;
+}
+#investmentsList .txmain small,#commitmentsList .txmain small,
+#debtsList .txmain small,#accountsList .txmain small,
+#assetsList .txmain small,#liabilitiesList .txmain small,
+#transfersList .txmain small,#debtPaymentsList .txmain small,
+#cardPurchases .txmain small{
+ display:block;font-size:11px;line-height:1.5;margin-top:3px;
+}
+#investmentsList .txval,#commitmentsList .txval,#debtsList .txval,
+#accountsList .txval,#assetsList .txval,#liabilitiesList .txval,
+#transfersList .txval,#debtPaymentsList .txval,#cardPurchases .txval{
+ max-width:42%;white-space:normal;overflow-wrap:anywhere;
+ font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+#investmentsList .dot,#commitmentsList .dot,#debtsList .dot,
+#accountsList .dot,#assetsList .dot,#liabilitiesList .dot,
+#transfersList .dot,#debtPaymentsList .dot,#cardPurchases .dot{
+ width:36px;height:36px;border-radius:12px;flex-shrink:0;
+}
+#investmentsList button,#commitmentsList button,#debtsList button,
+#accountsList button,#assetsList button,#liabilitiesList button,
+#transfersList button,#debtPaymentsList button,#cardPurchases button{
+ min-height:34px;border-radius:10px;font-size:11px;
+}
+#investmentsList .del,#commitmentsList .del,#debtsList .del,
+#accountsList .del,#assetsList .del,#liabilitiesList .del,
+#transfersList .del,#debtPaymentsList .del,#cardPurchases .del{
+ margin-top:5px;
+}
+#cardsList .credit-card{margin:0;min-width:0}
+#cardsList .credit-card .card-actions{gap:7px}
+#cardsList .credit-card .card-actions button{min-height:36px;padding:8px 11px}
+#cardBills>*,#cardFutureInstallments>*,#cardPurchases>*,
+#budgetsList>*,#recurringList>*{
+ border-radius:14px;
+}
+#cardBills .row,#cardFutureInstallments .row,#cardPurchases .row,
+#budgetsList .row,#recurringList .row{
+ gap:8px;align-items:flex-start;
+}
+#goalsList .goal-card{padding:15px 16px;border-radius:17px}
+#goalsList .goal-card .row{gap:8px;align-items:flex-start}
+#goalsList .goal-card button{min-height:34px}
+#recent .tx{gap:10px}
+#recent .txmain strong{font-size:13px}
+#recent .txval{font-size:12px}
+#recent .dot{width:36px;height:36px}
+#investmentsList:empty:after,#commitmentsList:empty:after,
+#debtsList:empty:after,#accountsList:empty:after,
+#assetsList:empty:after,#liabilitiesList:empty:after,
+#transfersList:empty:after,#debtPaymentsList:empty:after,
+#cardPurchases:empty:after{
+ content:"Nenhum registro por aqui ainda";display:block;padding:18px 12px;
+ text-align:center;color:var(--muted-ink);font-size:12px;
+ background:var(--canvas);border:1px dashed var(--line);border-radius:13px;
+}
+body[data-theme="dark"] #investmentsList .tx,
+body[data-theme="dark"] #commitmentsList .tx,body[data-theme="dark"] #debtsList .tx,
+body[data-theme="dark"] #accountsList .tx,body[data-theme="dark"] #assetsList .tx,
+body[data-theme="dark"] #liabilitiesList .tx,body[data-theme="dark"] #transfersList .tx,
+body[data-theme="dark"] #debtPaymentsList .tx,body[data-theme="dark"] #cardPurchases .tx,
+body[data-theme="dark"] #goalDeposits .tx,body[data-theme="dark"] #recurringList .tx{
+ border-color:var(--line);
+}
+body[data-theme="dark"] #investmentsList:empty:after,
+body[data-theme="dark"] #commitmentsList:empty:after,
+body[data-theme="dark"] #debtsList:empty:after,
+body[data-theme="dark"] #accountsList:empty:after,
+body[data-theme="dark"] #assetsList:empty:after,
+body[data-theme="dark"] #liabilitiesList:empty:after,
+body[data-theme="dark"] #transfersList:empty:after,
+body[data-theme="dark"] #debtPaymentsList:empty:after,
+body[data-theme="dark"] #cardPurchases:empty:after{
+ background:#142019;border-color:var(--line);color:var(--muted-ink);
+}
+@media(max-width:370px){
+ #investmentsList .tx,#commitmentsList .tx,#debtsList .tx,
+ #accountsList .tx,#assetsList .tx,#liabilitiesList .tx,
+ #transfersList .tx,#debtPaymentsList .tx,#cardPurchases .tx{gap:7px}
+ #investmentsList .txval,#commitmentsList .txval,#debtsList .txval,
+ #accountsList .txval,#assetsList .txval,#liabilitiesList .txval,
+ #transfersList .txval,#debtPaymentsList .txval,#cardPurchases .txval{font-size:11px}
+}
+
 </style>
 </head>
 <body>
@@ -630,6 +751,6 @@ body[data-theme="dark"] #assets>.panel:first-of-type{
 <div class="panel"><div class="row"><div><b>Preferências</b><p class="settings-note" style="margin:5px 0 0">Suas escolhas ficam salvas neste aparelho e podem ser alteradas quando quiser.</p></div><button type="button" class="btn soft" id="resetPreferences">Restaurar padrão</button></div></div></section>
 </main>
 <nav class="main-nav"><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Lançamentos</button><button class="navbtn" data-page="summary"><span>▦</span>Resumo</button><details class="nav-more"><summary class="navbtn"><span>•••</span>Mais</summary><div class="nav-menu"><button class="nav-menu-item" data-page="add"><span>＋</span><span><b>Nova movimentação</b><small>Adicionar receita ou despesa</small></span></button><button class="nav-menu-item" data-page="reports"><span>📊</span><span><b>Relatórios</b><small>Gráficos e evolução financeira</small></span></button><button class="nav-menu-item" data-page="budgets"><span>🎯</span><span><b>Planejamento</b><small>Limites e contas fixas</small></span></button><button class="nav-menu-item" data-page="goals"><span>🏁</span><span><b>Metas</b><small>Objetivos e depósitos</small></span></button><button class="nav-menu-item" data-page="cards"><span>💳</span><span><b>Cartões</b><small>Compras e faturas</small></span></button><button class="nav-menu-item" data-page="accounts"><span>🏦</span><span><b>Contas e carteiras</b><small>Saldos e transferências</small></span></button><button class="nav-menu-item" data-page="assets"><span>🏠</span><span><b>Patrimônio</b><small>Bens, obrigações e patrimônio líquido</small></span></button><button class="nav-menu-item" data-page="investments"><span>📈</span><span><b>Investimentos</b><small>Carteira e rendimentos</small></span></button><button class="nav-menu-item" data-page="commitments"><span>📅</span><span><b>Compromissos</b><small>Pagamentos futuros e avulsos</small></span></button><button class="nav-menu-item" data-page="debts"><span>📉</span><span><b>Dívidas</b><small>Saldo devedor e pagamentos</small></span></button><button class="nav-menu-item" data-page="settings"><span>🎨</span><span><b>Personalizar</b><small>Cores, fontes e exibição</small></span></button></div></details></nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 2/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>App 7.7 · Visual 2.0 · Etapa 3/6</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
 <script src="app.js?v=34"></script>
 </body></html>
