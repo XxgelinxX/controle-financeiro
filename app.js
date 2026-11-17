@@ -33,6 +33,8 @@ function renderReports(){
  const months=Number($('reportPeriod').value||6),now=new Date(),keys=[];
  for(let i=months-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);keys.push(String(d.getFullYear())+'-'+String(d.getMonth()+1).padStart(2,'0'))}
  const monthData=keys.map(key=>{const list=data.filter(x=>x.date&&x.date.slice(0,7)===key),income=total('income',list),expense=total('expense',list);return {key,income,expense,result:income-expense}});
+ let accumulated=data.filter(x=>x.date&&x.date.slice(0,7)<keys[0]).reduce((s,x)=>s+(x.type==='income'?x.amount:-x.amount),0);
+ monthData.forEach(m=>{accumulated+=m.result;m.balance=accumulated});
  const sumIncome=monthData.reduce((s,m)=>s+m.income,0),sumExpense=monthData.reduce((s,m)=>s+m.expense,0);
  $('reportIncome').textContent=money(sumIncome);$('reportExpense').textContent=money(sumExpense);
  const first=new Date(keys[0]+'-01T12:00:00'),last=new Date(keys[keys.length-1]+'-01T12:00:00');
@@ -43,8 +45,8 @@ function renderReports(){
  expenses.forEach(x=>groups[x.category]=(groups[x.category]||0)+x.amount);
  const cats=Object.entries(groups).sort((a,b)=>b[1]-a[1]),catTotal=cats.reduce((s,x)=>s+x[1],0),palette=['#34765a','#d49a3a','#6487bd','#b879a5','#d77777','#6eaaa4','#8a8f9d'];
  $('reportCategories').innerHTML=cats.length?cats.map(([name,value],i)=>'<div style="margin-bottom:13px"><div class="row" style="font-size:13px"><span>'+esc(name)+'</span><b>'+money(value)+' · '+(value/catTotal*100).toFixed(1)+'%</b></div><div class="bar"><div style="width:'+(value/catTotal*100)+'%;background:'+palette[i%palette.length]+'"></div></div></div>').join(''):'<span class="muted">Nenhuma despesa neste período.</span>';
- const maxResult=Math.max(1,...monthData.map(x=>Math.abs(x.result)));
- $('reportBalance').innerHTML=monthData.map(m=>'<div style="margin-bottom:13px"><div class="row" style="font-size:13px;margin-bottom:5px"><span>'+new Date(m.key+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'})+'</span><b style="color:'+(m.result>=0?'#26956a':'#c75e5e')+'">'+money(m.result)+'</b></div><div class="bar"><div style="width:'+(Math.abs(m.result)/maxResult*100)+'%;background:'+(m.result>=0?'#55b98b':'#df7777')+'"></div></div></div>').join('');
+ const maxResult=Math.max(1,...monthData.map(x=>Math.abs(x.balance)));
+ $('reportBalance').innerHTML=monthData.map(m=>'<div style="margin-bottom:13px"><div class="row" style="font-size:13px;margin-bottom:5px"><span>'+new Date(m.key+'-02T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'})+'</span><b style="color:'+(m.balance>=0?'#26956a':'#c75e5e')+'">'+money(m.balance)+'</b></div><div class="bar"><div style="width:'+(Math.abs(m.balance)/maxResult*100)+'%;background:'+(m.balance>=0?'#55b98b':'#df7777')+'"></div></div></div>').join('');
 }
 $('reportPeriod').addEventListener('change',renderReports);
 
