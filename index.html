@@ -36,16 +36,13 @@ body[data-theme="dark"] .panel{background:#1b2922;border-color:#304238;box-shado
 body[data-theme="dark"] .muted,body[data-theme="dark"] .eyebrow,body[data-theme="dark"] .txmain small{color:#a8b9af}
 body[data-theme="dark"] .field{background:#142019;border-color:#3a4d41;color:#e7eee9}
 body[data-theme="dark"] .soft{background:#26382e;color:#cce3d5;border-color:#3a5043}
-body[data-theme="dark"] .dot{background:#26382e}
-body[data-theme="dark"] .tx{border-color:#304238}
+body[data-theme="dark"] .dot{background:#26382e}body[data-theme="dark"] .tx{border-color:#304238}
 body[data-theme="dark"] nav{background:#17231c;border-color:#304238}
-body[data-theme="dark"] .navbtn{color:#a8b9af}
-body[data-theme="dark"] .navbtn.active{color:#75c49c}
+body[data-theme="dark"] .navbtn{color:#a8b9af}body[data-theme="dark"] .navbtn.active{color:#75c49c}
 body[data-theme="dark"] .bar{background:#304238}
 body[data-theme="dark"] .theme-toggle{background:#26382e;color:#e7eee9;border-color:#405448}
 body[data-theme="dark"] .toast{color:#9ed9b7}
 @media(min-width:500px){body{padding-top:26px}.panel{padding:19px}}
-
 .cards-grid{display:grid;grid-template-columns:1fr;gap:10px}
 .credit-card{background:linear-gradient(135deg,#193f32,#34765a);color:#fff;border-radius:16px;padding:16px;margin-bottom:10px}
 .credit-card small{color:#d2e6dc}.credit-card .stat{font-size:21px}
@@ -56,81 +53,26 @@ body[data-theme="dark"] .credit-card{background:linear-gradient(135deg,#203d30,#
 </head>
 <body>
 <header><div><div class="eyebrow">CONTROLE FINANCEIRO</div><h1>Meu dinheiro <span style="color:#57a785">.</span></h1></div><div style="display:flex;align-items:center;gap:10px"><button id="themeToggle" class="theme-toggle" type="button" aria-label="Ativar modo escuro">🌙 Escuro</button><div style="font-size:25px">💰</div></div></header>
-
 <main>
 <section id="dashboard" class="page active">
  <div class="panel balance"><div class="row"><span class="muted">Saldo disponível</span><button id="toggleBalance" aria-label="Ocultar saldo" style="background:none;border:0;color:white">◉</button></div><div class="amount" id="balance">R$ 0,00</div><small class="muted">Resultado das suas movimentações</small></div>
- <div class="grid">
-  <div class="panel"><div class="muted" style="font-size:13px">↗ Receitas</div><div class="stat" id="income">R$ 0,00</div></div>
-  <div class="panel"><div class="muted" style="font-size:13px">↙ Despesas</div><div class="stat" id="expense">R$ 0,00</div></div>
- </div>
+ <div class="grid"><div class="panel"><div class="muted" style="font-size:13px">↗ Receitas</div><div class="stat" id="income">R$ 0,00</div></div><div class="panel"><div class="muted" style="font-size:13px">↙ Despesas</div><div class="stat" id="expense">R$ 0,00</div></div></div>
  <div class="panel"><div class="row"><b>Resumo do mês</b><small class="muted" id="monthLabel"></small></div><div class="row" style="font-size:13px;margin-top:15px"><span class="muted">Receitas</span><b id="monthIncome">R$ 0,00</b></div><div class="bar"><div id="incomeBar" style="background:#55b98b;width:0%"></div></div><div class="row" style="font-size:13px"><span class="muted">Despesas</span><b id="monthExpense">R$ 0,00</b></div><div class="bar"><div id="expenseBar" style="background:#df7777;width:0%"></div></div></div>
- <div class="row" style="margin:18px 2px 8px"><b>Últimas movimentações</b><button class="soft btn" data-page="history">Ver todas</button></div>
- <div class="panel" id="recent"><div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação ainda.</div></div>
+ <div class="row" style="margin:18px 2px 8px"><b>Últimas movimentações</b><button class="soft btn" data-page="history">Ver todas</button></div><div class="panel" id="recent"><div class="muted" style="text-align:center;padding:12px">Nenhuma movimentação ainda.</div></div>
  <button class="btn primary wide" data-page="add">＋ Adicionar movimentação</button>
 </section>
-
-<section id="add" class="page">
- <h2>Nova movimentação</h2><p class="muted" style="font-size:13px">Registre seu dinheiro de forma simples.</p>
- <div class="grid" style="margin:16px 0"><button class="btn primary" id="incomeType">＋ Receita</button><button class="btn soft" id="expenseType">－ Despesa</button></div>
- <form class="panel" id="txForm">
-  <label>Descrição<input class="field" id="description" placeholder="Ex.: Salário, mercado..." maxlength="65" required></label>
-  <label>Valor (R$)<input class="field" id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label>
-  <label>Categoria<select class="field" id="category"></select></label>
-  <label>Data<input class="field" id="date" type="date" required></label>
-  <button class="btn primary wide" type="submit">Salvar movimentação</button>
- </form>
+<section id="add" class="page"><h2>Nova movimentação</h2><p class="muted" style="font-size:13px">Registre seu dinheiro de forma simples.</p><div class="grid" style="margin:16px 0"><button class="btn primary" id="incomeType">＋ Receita</button><button class="btn soft" id="expenseType">－ Despesa</button></div>
+ <form class="panel" id="txForm"><label>Descrição<input class="field" id="description" placeholder="Ex.: Salário, mercado..." maxlength="65" required></label><label>Valor (R$)<input class="field" id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><label>Categoria<select class="field" id="category"></select></label><label>Data<input class="field" id="date" type="date" required></label><button class="btn primary wide" type="submit">Salvar movimentação</button></form>
 </section>
-
-<section id="history" class="page">
- <h2>Histórico</h2><p class="muted" style="font-size:13px">Todas as suas movimentações.</p>
- <input class="field" id="filterText" placeholder="Buscar por descrição ou categoria..." style="margin:8px 0 12px">
- <div class="grid" style="margin-bottom:12px"><button class="btn primary" data-filter="all">Todas</button><button class="btn soft" data-filter="income">Receitas</button></div>
- <button class="btn soft wide" data-filter="expense" style="margin-bottom:12px">Mostrar despesas</button>
- <div class="panel" id="historyList"></div>
-</section>
-
-<section id="summary" class="page">
- <h2>Resumo financeiro</h2><p class="muted" style="font-size:13px">Entenda para onde seu dinheiro está indo.</p>
- <div class="panel"><div class="muted" style="font-size:13px">Resultado deste mês</div><div class="stat" id="monthResult">R$ 0,00</div></div>
- <div class="panel"><b>Despesas por categoria</b><div id="categories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma despesa neste mês.</div></div>
- <div class="panel"><b>Receitas por categoria</b><div id="incomeCategories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma receita neste mês.</div></div>
-</section>
-
-<section id="cards" class="page">
- <h2>Cartões de crédito</h2><p class="muted" style="font-size:13px">Acompanhe limites, compras e faturas sem misturar com seu saldo.</p>
- <div class="panel"><b>Adicionar cartão</b>
-  <form id="cardForm" style="margin-top:14px">
-   <label>Nome do cartão<input class="field" id="cardName" placeholder="Ex.: Cartão principal" maxlength="35" required></label>
-   <label>Banco ou instituição<input class="field" id="cardBank" placeholder="Ex.: Nubank" maxlength="35"></label>
-   <label>Limite total (R$)<input class="field" id="cardLimit" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label>
-   <div class="grid"><label>Dia de fechamento<input class="field" id="cardClosing" type="number" min="1" max="31" placeholder="Ex.: 10" required></label><label>Dia de vencimento<input class="field" id="cardDue" type="number" min="1" max="31" placeholder="Ex.: 17" required></label></div>
-   <button class="btn primary wide" type="submit">Salvar cartão</button>
-  </form>
- </div>
- <div class="panel"><b>Registrar compra</b>
-  <form id="purchaseForm" style="margin-top:14px">
-   <label>Cartão<select class="field" id="purchaseCard" required><option value="">Selecione um cartão</option></select></label>
-   <label>Descrição<input class="field" id="purchaseDescription" maxlength="65" placeholder="Ex.: Compra no mercado" required></label>
-   <label>Valor total (R$)<input class="field" id="purchaseAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label>
-   <div class="grid"><label>Data da compra<input class="field" id="purchaseDate" type="date" required></label><label>Parcelas<select class="field" id="purchaseInstallments"><option value="1">À vista</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option><option value="7">7x</option><option value="8">8x</option><option value="9">9x</option><option value="10">10x</option><option value="11">11x</option><option value="12">12x</option><option value="18">18x</option><option value="24">24x</option></select></label></div>
-   <button class="btn primary wide" type="submit">Registrar compra</button>
-  </form>
- </div>
- <div class="row" style="margin:18px 2px 8px"><b>Meus cartões</b><small class="muted" id="cardsCount">0 cartões</small></div>
- <div id="cardsList" class="cards-grid"></div>
- <div class="panel"><div class="row"><b>Fatura deste mês</b><small class="muted" id="cardMonthLabel"></small></div><div id="cardBills" style="margin-top:10px"></div></div>
- <div class="panel"><b>Compras registradas</b><div id="cardPurchases" style="margin-top:8px"></div></div>
+<section id="history" class="page"><h2>Histórico</h2><p class="muted" style="font-size:13px">Todas as suas movimentações.</p><input class="field" id="filterText" placeholder="Buscar por descrição ou categoria..." style="margin:8px 0 12px"><div class="grid" style="margin-bottom:12px"><button class="btn primary" data-filter="all">Todas</button><button class="btn soft" data-filter="income">Receitas</button></div><button class="btn soft wide" data-filter="expense" style="margin-bottom:12px">Mostrar despesas</button><div class="panel" id="historyList"></div></section>
+<section id="summary" class="page"><h2>Resumo financeiro</h2><p class="muted" style="font-size:13px">Entenda para onde seu dinheiro está indo.</p><div class="panel"><div class="muted" style="font-size:13px">Resultado deste mês</div><div class="stat" id="monthResult">R$ 0,00</div></div><div class="panel"><b>Despesas por categoria</b><div id="categories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma despesa neste mês.</div></div><div class="panel"><b>Receitas por categoria</b><div id="incomeCategories" class="muted" style="margin-top:15px;font-size:13px">Nenhuma receita neste mês.</div></div></section>
+<section id="cards" class="page"><h2>Cartões de crédito</h2><p class="muted" style="font-size:13px">Acompanhe limites, compras e faturas sem misturar com seu saldo.</p>
+ <div class="panel"><b>Adicionar cartão</b><form id="cardForm" style="margin-top:14px"><label>Nome do cartão<input class="field" id="cardName" placeholder="Ex.: Cartão principal" maxlength="35" required></label><label>Banco ou instituição<input class="field" id="cardBank" placeholder="Ex.: Nubank" maxlength="35"></label><label>Limite total (R$)<input class="field" id="cardLimit" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><div class="grid"><label>Dia de fechamento<input class="field" id="cardClosing" type="number" min="1" max="31" placeholder="Ex.: 10" required></label><label>Dia de vencimento<input class="field" id="cardDue" type="number" min="1" max="31" placeholder="Ex.: 17" required></label></div><button class="btn primary wide" type="submit">Salvar cartão</button></form></div>
+ <div class="panel"><b>Registrar compra</b><form id="purchaseForm" style="margin-top:14px"><label>Cartão<select class="field" id="purchaseCard" required><option value="">Selecione um cartão</option></select></label><label>Descrição<input class="field" id="purchaseDescription" maxlength="65" placeholder="Ex.: Compra no mercado" required></label><label>Valor total (R$)<input class="field" id="purchaseAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></label><div class="grid"><label>Data da compra<input class="field" id="purchaseDate" type="date" required></label><label>Parcelas<select class="field" id="purchaseInstallments"><option value="1">À vista</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6">6x</option><option value="7">7x</option><option value="8">8x</option><option value="9">9x</option><option value="10">10x</option><option value="11">11x</option><option value="12">12x</option><option value="18">18x</option><option value="24">24x</option></select></label></div><button class="btn primary wide" type="submit">Registrar compra</button></form></div>
+ <div class="row" style="margin:18px 2px 8px"><b>Meus cartões</b><small class="muted" id="cardsCount">0 cartões</small></div><div id="cardsList" class="cards-grid"></div><div class="panel"><div class="row"><b>Fatura deste mês</b><small class="muted" id="cardMonthLabel"></small></div><div id="cardBills" style="margin-top:10px"></div></div><div class="panel"><b>Compras registradas</b><div id="cardPurchases" style="margin-top:8px"></div></div>
 </section>
 </main>
-<nav>
- <button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button>
- <button class="navbtn" data-page="history"><span>☷</span>Histórico</button>
- <button class="navbtn" data-page="add"><span>＋</span>Adicionar</button>
- <button class="navbtn" data-page="summary"><span>▥</span>Resumo</button>
- <button class="navbtn" data-page="cards"><span>💳</span>Cartões</button>
-</nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 2.0</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
-<script src="app.js?v=5"></script>
+<nav><button class="navbtn active" data-page="dashboard"><span>⌂</span>Início</button><button class="navbtn" data-page="history"><span>☷</span>Histórico</button><button class="navbtn" data-page="add"><span>＋</span>Adicionar</button><button class="navbtn" data-page="summary"><span>▥</span>Resumo</button><button class="navbtn" data-page="cards"><span>💳</span>Cartões</button></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><div class="row" style="font-size:12px;color:#718078;margin:12px 2px"><span>Dados salvos neste aparelho</span><span>Versão 3.0</span><button id="export" class="del" style="font-size:12px">Exportar CSV</button></div>
+<script src="app.js?v=6"></script>
 </body></html>
