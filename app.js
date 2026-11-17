@@ -148,5 +148,44 @@ document.addEventListener('click',e=>{
  if(b){const x=goalDeposits.find(v=>v.id===b.dataset.goalDepositEdit);if(!x)return;const goal=askEdit('ID da meta atual: '+x.goalId+' (cole outro ID para transferir; deixe igual para manter)',x.goalId);if(goal===null)return;const amount=askEdit('Valor do depósito (R$):',x.amount);if(amount===null)return;const note=askEdit('Descrição:',x.note||'');if(note===null)return;const date=askEdit('Data (AAAA-MM-DD):',x.date);if(date===null)return;if(!goals.some(g=>g.id===goal)||!validMoney(amount)||(date&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))){toast('Dados inválidos. Nada foi alterado.');return}Object.assign(x,{goalId:goal,amount:Number(amount),note,date});saveGoals();renderGoals();toast('Depósito atualizado!')}
 });
 
+
+const BACKUP_KEYS=['meuControleFin_v1','meuControleFin_cards_v1','meuControleFin_cardPurchases_v1','meuControleFin_budgets_v1','meuControleFin_recurring_v1','meuControleFin_goals_v1','meuControleFin_goalDeposits_v1','meuControleFin_theme'];
+function makeBackup(){
+ const payload={};BACKUP_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(raw===null){payload[key]=key==='meuControleFin_theme'?'light':[];}else{payload[key]=JSON.parse(raw)}});
+ return {app:'Meu Controle Financeiro',formatVersion:1,exportedAt:new Date().toISOString(),data:payload};
+}
+$('backupExport').addEventListener('click',()=>{
+ try{
+  const backup=makeBackup(),blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;
+  a.download='meu-controle-financeiro-backup-'+today()+'.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Backup completo baixado. Guarde esse arquivo em local seguro.');
+ }catch(err){toast('Não foi possível criar o backup. Verifique o espaço disponível no aparelho.')}
+});
+$('backupImportButton').addEventListener('click',()=>$('backupFile').click());
+$('backupFile').addEventListener('change',async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ try{
+  if(file.size>10*1024*1024)throw new Error('O arquivo é muito grande.');
+  const backup=JSON.parse(await file.text()),payload=backup&&backup.data;
+  if(!backup||backup.app!=='Meu Controle Financeiro'||backup.formatVersion!==1||!payload)throw new Error('Este arquivo não é um backup válido do aplicativo.');
+  for(const key of BACKUP_KEYS){
+   if(!Object.prototype.hasOwnProperty.call(payload,key))throw new Error('O backup está incompleto. Nenhum dado foi alterado.');
+   if(key==='meuControleFin_theme'){if(!['light','dark'].includes(payload[key]))throw new Error('Tema inválido no backup.');}
+   else if(!Array.isArray(payload[key])||payload[key].some(item=>!item||typeof item!=='object'||Array.isArray(item)))throw new Error('Há dados inválidos no backup. Nenhum dado foi alterado.');
+  }
+  if(!confirm('Restaurar este backup? Os dados atuais deste aplicativo serão substituídos pelos dados do arquivo. Recomendamos baixar um backup atual antes de continuar.'))return;
+  const previous={};BACKUP_KEYS.forEach(key=>previous[key]=localStorage.getItem(key));
+  try{BACKUP_KEYS.forEach(key=>localStorage.setItem(key,JSON.stringify(payload[key])));}
+  catch(saveError){BACKUP_KEYS.forEach(key=>{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);});throw new Error('Não foi possível restaurar. Seus dados anteriores foram mantidos.');}
+  data=payload.meuControleFin_v1;cards=payload.meuControleFin_cards_v1;cardPurchases=payload.meuControleFin_cardPurchases_v1;
+  budgets=payload.meuControleFin_budgets_v1;recurringBills=payload.meuControleFin_recurring_v1;
+  goals=payload.meuControleFin_goals_v1;goalDeposits=payload.meuControleFin_goalDeposits_v1;
+  applyTheme(payload.meuControleFin_theme);render();renderCards();renderBudgets();renderRecurring();renderGoals();renderReports();
+  toast('Backup restaurado com sucesso!');
+ }catch(err){toast(err.message||'Não foi possível ler esse backup.');}
+ finally{e.target.value='';}
+});
+
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
